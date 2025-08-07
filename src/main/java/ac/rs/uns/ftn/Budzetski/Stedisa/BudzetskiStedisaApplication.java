@@ -1,0 +1,13 @@
+package ac.rs.uns.ftn.Budzetski.Stedisa;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BudzetskiStedisaApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(BudzetskiStedisaApplication.class, args);
+	}
+
+}
