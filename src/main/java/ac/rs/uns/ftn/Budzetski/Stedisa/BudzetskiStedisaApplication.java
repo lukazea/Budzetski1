@@ -10,4 +10,6 @@ public class BudzetskiStedisaApplication {
 		SpringApplication.run(BudzetskiStedisaApplication.class, args);
 	}
  // ovo je komentar
+//ovo je moj komentar
+	
 }
