@@ -25,7 +25,7 @@ public class Category implements Serializable {
     @JoinColumn(name = "USER_ID", nullable = true)
     private User user;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Transaction> transactions = new HashSet<>();
 
     public Category() {}
