@@ -164,7 +164,14 @@ public class User implements Serializable {
 	 * CascadeType.ALL-izmena usera = izmena walleta
 	 * Treba mi i pored konekcije: get(vraca kolekciju) i set(postavlja kolekciju)
 	 */
-	
+
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private Set<Category> categories = new HashSet<>();
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Transaction> transactions = new HashSet<>();
+
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private Set<Wallet> wallets = new HashSet<>();
 	public Set<Wallet> getWallets() {

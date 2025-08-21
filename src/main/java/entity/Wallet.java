@@ -118,6 +118,9 @@ public class Wallet implements Serializable {
 		this.currencies = currencies; 
 	}
 
+	@OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Transaction> transactions = new HashSet<>();
+
 	@Override
 	public String toString() {
 		return "Wallet [id=" + id + ", name=" + name + ", initialBalance=" + initialBalance + ", currentBalance="
