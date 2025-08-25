@@ -26,7 +26,7 @@ public class Currency implements Serializable {
 		this.currency = currency;
 		this.valueToEur = valueToEur;
 	}
-    
+    // komentar proba
 	//Vise valuta, vise novcanika
 	@ManyToMany(mappedBy = "currencies")
 	private Set<Wallet> wallets = new HashSet<>(); //hash ne list da se izbegne NullPointer
