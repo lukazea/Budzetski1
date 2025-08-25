@@ -189,3 +189,5 @@ public class User implements Serializable {
 				+ registrationdate + ", blocked=" + blocked + ", wallets=" + wallets + "]";
 	}
 }
+
+//proba
