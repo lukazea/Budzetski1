@@ -1,9 +1,11 @@
 package entity;
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "WALLETS")
@@ -16,10 +18,10 @@ public class Wallet implements Serializable {
 	private String name;
 
 	@Column(name = "INITIAL_BALANCE", nullable = false)
-	private float initialBalance;
+	private BigDecimal initialBalance;
 
 	@Column(name = "CURRENT_BALANCE", nullable = false)
-		private float currentBalance;
+	private BigDecimal currentBalance;
     
 	//Vise novcanika moze imati vise valuta
 	@ManyToMany
@@ -61,19 +63,19 @@ public class Wallet implements Serializable {
 		this.name = name;
 	}
 
-	public float getInitialBalance() {
+	public BigDecimal getInitialBalance() {
 		return initialBalance;
  	}
 
-	public void setInitialBalance(float initialBalance) {
+	public void setInitialBalance(BigDecimal initialBalance) {
 		this.initialBalance = initialBalance;
 	}
 
-	public float getCurrentBalance() {
+	public BigDecimal getCurrentBalance() {
 		return currentBalance;
 	}
 
-	public void setCurrentBalance(float currentBalance) {
+	public void setCurrentBalance(BigDecimal currentBalance) {
 		this.currentBalance = currentBalance;
 	}
 

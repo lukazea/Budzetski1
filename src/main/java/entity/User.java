@@ -31,38 +31,38 @@ public class User implements Serializable {
 	● Blokiran (boolean) */
 	
 	//pravim kolonu u tabeli, za sve ocu da imaju ime, da li vrednost moze biti NULL (nullable), i da li vrednost mora biti jedinstvena (unique)
-	@Column(name = "FIRST_NAME", nullable = false)
+	@Column(name = "first_name", nullable = false)
 		private String firstName;
 	
-	@Column(name = "LAST_NAME", nullable = false)
+	@Column(name = "last_name", nullable = false)
 		private String lastName;
 	
-	@Column(name = "USER_NAME", nullable = false, unique = true)
+	@Column(name = "user_name", nullable = false, unique = true)
 		private String userName;
 	
-	@Column(name = "EMAIL", nullable = false, unique = true)
+	@Column(name = "email", nullable = false, unique = true)
 		private String email;
 	
-	@Column(name = "PASSWORD", nullable = false)
+	@Column(name = "password", nullable = false)
 		private String password;	//u service radi hesh
 	
-	@Column(name = "BIRTH_DATE", nullable = false)
+	@Column(name = "birth_date", nullable = false)
 		private LocalDate birthdate;
 	
 	@Enumerated(EnumType.STRING)
-	@Column(name = "ROLE", nullable = false)
+	@Column(name = "role", nullable = false)
 		private Role role;
 	
-	@Column(name = "PROFIL_PIC", nullable = true)
+	@Column(name = "profile_pic", nullable = true)
 		private String profilePicPath;
 	
-	@Column(name = "CURRENCY", nullable = false)
+	@Column(name = "currency", nullable = false)
 		private String currency;
 	
-	@Column(name = "REGISTRATION_DATE", nullable = false)
+	@Column(name = "registration_date", nullable = false)
 		private LocalDate registrationdate;
 	
-	@Column(name = "BLOCKED", nullable = false)
+	@Column(name = "blocked", nullable = false)
 		private boolean blocked;
 
 	public Long getId() {
