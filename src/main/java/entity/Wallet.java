@@ -95,7 +95,7 @@ public class Wallet implements Serializable {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
+	
 	public boolean isSavings() {
 		return savings;
 	}
@@ -118,6 +118,10 @@ public class Wallet implements Serializable {
     
 	public void setCurrencies(Set<Currency> currencies) {
 		this.currencies = currencies; 
+	}
+	
+	public Set<Transaction> getTransactions() {
+	    return transactions;
 	}
 
 	@OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
