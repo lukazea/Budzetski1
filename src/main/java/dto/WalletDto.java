@@ -41,8 +41,6 @@ public class WalletDto {
                     .collect(Collectors.toSet());
         }
 
-        // Transakcije će biti učitane lazy, pa za sada ostavljamo prazan set
-        // ili možemo eksplicitno učitati transakcije kroz servis ako je potrebno
     }
 
     // Getteri i setteri

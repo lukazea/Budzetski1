@@ -18,7 +18,7 @@ public class WalletController {
     @Autowired
     private WalletService walletService;
 
-    // 2.1 Funkcionalnost: Dodavanje novčanika
+
     @PostMapping("/user/{userId}")
     public ResponseEntity<WalletDto> createWallet(
             @PathVariable Long userId,
@@ -37,7 +37,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Pregled stanja po novčaniku (aktivni novčanici)
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<WalletDto>> getUserWallets(@PathVariable Long userId) {
         try {
@@ -51,7 +51,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Pregled arhiviranih novčanika
+
     @GetMapping("/user/{userId}/archived")
     public ResponseEntity<List<WalletDto>> getArchivedWallets(@PathVariable Long userId) {
         try {
@@ -65,7 +65,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Preuzmi novčanik po ID (za pregled stanja)
+
     @GetMapping("/{walletId}")
     public ResponseEntity<WalletDto> getWalletById(@PathVariable Long walletId) {
         return walletService.findById(walletId)
@@ -73,7 +73,7 @@ public class WalletController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 2.1 Funkcionalnost: Uređivanje novčanika
+
     @PutMapping("/{walletId}")
     public ResponseEntity<WalletDto> updateWallet(
             @PathVariable Long walletId,
@@ -90,7 +90,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Arhiviranje neaktivnih novčanika
+
     @PutMapping("/{walletId}/archive")
     public ResponseEntity<Void> archiveWallet(@PathVariable Long walletId) {
         try {
@@ -101,7 +101,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Vraćanje novčanika iz arhive
+
     @PutMapping("/{walletId}/activate")
     public ResponseEntity<Void> activateWallet(@PathVariable Long walletId) {
         try {
@@ -112,7 +112,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Brisanje novčanika
+
     @DeleteMapping("/{walletId}")
     public ResponseEntity<Void> deleteWallet(@PathVariable Long walletId) {
         try {
@@ -123,7 +123,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: U statistici i dashboard prikaz ukupnog stanja korisnika
+
     @GetMapping("/user/{userId}/total-balance")
     public ResponseEntity<BigDecimal> getTotalUserBalance(@PathVariable Long userId) {
         try {
@@ -134,7 +134,7 @@ public class WalletController {
         }
     }
 
-    // 2.1 Funkcionalnost: Prikaz pojedinačnog stanja novčanika (za dashboard)
+
     @GetMapping("/{walletId}/balance")
     public ResponseEntity<BigDecimal> getWalletBalance(@PathVariable Long walletId) {
         try {
