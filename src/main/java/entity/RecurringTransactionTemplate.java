@@ -40,41 +40,124 @@ public class RecurringTransactionTemplate implements Serializable {
     @Column(name = "START_DATE", nullable = false)
     private LocalDate startDate;
 
+    @Column(name = "END_DATE", nullable = false)
+    private LocalDate endDate;
+
+    @Column(name = "TOTAL_GENERATED", nullable = false)
+    private int totalGenerated = 0;
+
+    @Column(name = "LAST_GENERATED", nullable = false)
+    private LocalDate lastGenerated;
+
     @Column(name = "IS_ACTIVE", nullable = false)
     private boolean isActive = true;
 
     // Geteri i Seteri
-    public Long getId() { return id; }
-    public void setId(Long id) {this.id = id;}
+    public Long getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public String getName() {
+        return name;
+    }
 
-    public CategoryType getType() { return type; }
-    public void setType(CategoryType type) { this.type = type; }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public CategoryType getType() {
+        return type;
+    }
+
+    public void setType(CategoryType type) {
+        this.type = type;
+    }
 
     // za ponavljajuce transakcije
 
-    public Category getCategory() { return category; }
-    public void setCategory(Category category) { this.category = category; }
+    public Category getCategory() {
+        return category;
+    }
 
-    public Wallet getWallet() { return wallet; }
-    public void setWallet(Wallet wallet) { this.wallet = wallet; }
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public Wallet getWallet() {
+        return wallet;
+    }
 
-    public String getFrequency() { return frequency; }
-    public void setFrequency(String frequency) { this.frequency = frequency; }
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public User getUser() {
+        return user;
+    }
 
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { this.isActive = active; }
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(String frequency) {
+        this.frequency = frequency;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getTotalGenerated() {
+        return totalGenerated;
+    }
+
+    public void setTotalGenerated(int totalGenerated) {
+        this.totalGenerated = totalGenerated;
+    }
+
+    public LocalDate getLastGenerated() {
+        return lastGenerated;
+    }
+
+    public void setLastGenerated(LocalDate lastGenerated) {
+        this.lastGenerated = lastGenerated;
+    }
 
     @Override
     public String toString() {
@@ -82,7 +165,11 @@ public class RecurringTransactionTemplate implements Serializable {
                 + ", name=" + name
                 + ", amount=" + amount
                 + ", frequency=" + frequency
+                + ", startDate=" + startDate
+                + ", endDate=" + endDate
+                + ", totalGenerated=" + totalGenerated
                 + ", isActive=" + isActive
                 + "]";
+
     }
 }
