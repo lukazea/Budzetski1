@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.math.BigDecimal;
 
@@ -129,5 +130,9 @@ public class Wallet implements Serializable {
 				+ currentBalance + ", currencies=" + currencies + ", creationDate=" + creationDate + ", user=" + user
 				+ ", savings=" + savings + ", archived=" + archived + "]";
 	}
+	
+	//dodajem
+	@OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Goal> goals;
 }
 
