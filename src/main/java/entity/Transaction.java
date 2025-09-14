@@ -128,7 +128,4 @@ public class Transaction implements Serializable {
                 + ", user=" + (user != null ? user.getId() : "null")
                 + "]";
     }
-
-
-
 }
