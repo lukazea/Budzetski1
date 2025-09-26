@@ -46,7 +46,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     // --- Provera da li kategorija pripada korisniku ili je predefinisana ---
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Category c " +
-           "WHERE c.id = :categoryId AND (c.user.id = :userId OR c.predefined = true)")
+            "WHERE c.id = :categoryId AND (c.user.id = :userId OR c.predefined = true)")
     boolean isAvailableForUser(@Param("categoryId") Long categoryId, @Param("userId") Long userId);
 
     // --- Pronađi kategoriju po nazivu za korisnika ---
@@ -54,4 +54,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     // --- Pronađi predefinisanu kategoriju po nazivu ---
     Optional<Category> findByNameAndPredefinedTrue(String name);
+
+    // --- Nova metoda: pretraga dostupnih kategorija po imenu (predefinisane + korisničke) ---
+    @Query("SELECT c FROM Category c " +
+            "WHERE (c.predefined = true OR c.user.id = :userId) " +
+            "AND LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Category> findAvailableForUserByNameContaining(@Param("userId") Long userId,
+                                                        @Param("searchTerm") String searchTerm);
 }

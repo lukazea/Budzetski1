@@ -197,16 +197,22 @@ public class TransactionController {
     }
 
     // Filtriraj transakcije po kategoriji (user endpoint)
-    @GetMapping("/wallet/{walletId}/category/{categoryId}")
+    @GetMapping("/wallet/{walletId}/category/{categoryId}/user/{userId}")
     public ResponseEntity<List<TransactionDto>> getTransactionsByCategory(
             @PathVariable Long walletId,
-            @PathVariable Long categoryId) {
+            @PathVariable Long categoryId,
+            @PathVariable Long userId) {  // <-- sad imamo userId
+
         Category category = categoryService.findById(categoryId)
-            .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
-        List<Transaction> transactions = transactionService.getTransactionsByCategory(walletId, category);
-        return ResponseEntity.ok(
-            transactions.stream().map(TransactionDto::new).collect(Collectors.toList())
-        );
+                .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
+
+        List<Transaction> transactions = transactionService.getTransactionsByCategory(walletId, userId, category);
+
+        List<TransactionDto> transactionDtos = transactions.stream()
+                .map(TransactionDto::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(transactionDtos);
     }
 
     // Filtriraj transakcije po tipu

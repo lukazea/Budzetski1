@@ -31,8 +31,8 @@ public class WalletController {
             wallet.setInitialBalance(walletDto.getInitialBalance());
             wallet.setSavings(walletDto.isSavings());
 
-            Wallet savedWallet = walletService.createWallet(wallet, userId, currencyCode);
-            return ResponseEntity.ok(new WalletDto(savedWallet));
+            WalletDto savedWallet = walletService.createWallet(wallet, userId, currencyCode);
+            return ResponseEntity.ok(savedWallet);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -42,11 +42,8 @@ public class WalletController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<WalletDto>> getUserWallets(@PathVariable Long userId) {
         try {
-            List<Wallet> wallets = walletService.getUserWallets(userId);
-            List<WalletDto> walletDtos = wallets.stream()
-                    .map(WalletDto::new)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(walletDtos);
+            List<WalletDto> wallets = walletService.getUserWallets(userId);
+            return ResponseEntity.ok(wallets);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -56,36 +53,24 @@ public class WalletController {
     @GetMapping("/user/{userId}/archived")
     public ResponseEntity<List<WalletDto>> getArchivedWallets(@PathVariable Long userId) {
         try {
-            List<Wallet> wallets = walletService.getArchivedUserWallets(userId);
-            List<WalletDto> walletDtos = wallets.stream()
-                    .map(WalletDto::new)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(walletDtos);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    // --- AKTIVNI NOVČANICI ---
-    @GetMapping("/user/{userId}/active")
-    public ResponseEntity<List<WalletDto>> getActiveUserWallets(@PathVariable Long userId) {
-        try {
-            List<Wallet> wallets = walletService.getActiveUserWallets(userId);
-            List<WalletDto> walletDtos = wallets.stream()
-                    .map(WalletDto::new)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(walletDtos);
+            List<WalletDto> wallets = walletService.getArchivedUserWallets(userId);
+            return ResponseEntity.ok(wallets);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     // --- JEDAN NOVČANIK PO ID ---
-    @GetMapping("/{walletId}")
-    public ResponseEntity<WalletDto> getWalletById(@PathVariable Long walletId) {
-        return walletService.findById(walletId)
-                .map(wallet -> ResponseEntity.ok(new WalletDto(wallet)))
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/user/{userId}/{walletId}")
+    public ResponseEntity<WalletDto> getWalletById(
+            @PathVariable Long walletId,
+            @PathVariable Long userId) {
+        try {
+            WalletDto wallet = walletService.findById(walletId, userId);
+            return ResponseEntity.ok(wallet);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // --- IZMENA NOVČANIKA ---
@@ -98,8 +83,8 @@ public class WalletController {
             updatedWallet.setName(walletDto.getName());
             updatedWallet.setSavings(walletDto.isSavings());
 
-            Wallet wallet = walletService.updateWallet(walletId, updatedWallet);
-            return ResponseEntity.ok(new WalletDto(wallet));
+            WalletDto wallet = walletService.updateWallet(walletId, updatedWallet);
+            return ResponseEntity.ok(wallet);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }

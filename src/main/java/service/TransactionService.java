@@ -38,10 +38,10 @@ public class TransactionService {
 
     @Autowired
     private CurrencyRepository currencyRepository;
-    
+
     @Autowired
     private WalletService walletService;
-    
+
     @Autowired
     private CurrencyService currencyService;
 
@@ -275,79 +275,79 @@ public class TransactionService {
 
         transactionRepository.deleteById(transactionId);
     }
-    
+
     // ----- STATISTIKE -----
-    
+
     // Statistike
     public BigDecimal getTotalIncomeForPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
         BigDecimal total = transactionRepository.getSumByUserIdAndTypeAndDateBetween(
-            userId, CategoryType.PRIHOD, startDate, endDate);
+                userId, CategoryType.PRIHOD, startDate, endDate);
         return total != null ? total : BigDecimal.ZERO;
     }
 
     public BigDecimal getTotalExpenseForPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
         BigDecimal total = transactionRepository.getSumByUserIdAndTypeAndDateBetween(
-            userId, CategoryType.TROSAK, startDate, endDate);
+                userId, CategoryType.TROSAK, startDate, endDate);
         return total != null ? total : BigDecimal.ZERO;
     }
 
-    // Top transakcije
+    // Top transakcije - POPRAVKA: Koristi Pageable.ofSize umesto PageRequest.of
     public List<Transaction> getTopTransactions(LocalDate since, int limit) {
-        return transactionRepository.findTopTransactionsSince(since, 
-            PageRequest.of(0, limit));
+        return transactionRepository.findTopTransactionsSince(since,
+                Pageable.ofSize(limit));
     }
-    
+
     // Dnevne statistike
     public BigDecimal getDailyIncome(Long userId, LocalDate date) {
         return getTotalIncomeForPeriod(userId, date, date);
     }
-    
+
     public BigDecimal getDailyExpense(Long userId, LocalDate date) {
         return getTotalExpenseForPeriod(userId, date, date);
     }
-    
+
     // Nedeljne statistike
     public BigDecimal getWeeklyIncome(Long userId, LocalDate weekStart) {
         LocalDate weekEnd = weekStart.plusDays(6);
         return getTotalIncomeForPeriod(userId, weekStart, weekEnd);
     }
-    
+
     public BigDecimal getWeeklyExpense(Long userId, LocalDate weekStart) {
         LocalDate weekEnd = weekStart.plusDays(6);
         return getTotalExpenseForPeriod(userId, weekStart, weekEnd);
     }
-    
+
     // Mesečne statistike
     public BigDecimal getMonthlyIncome(Long userId, int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
         return getTotalIncomeForPeriod(userId, startDate, endDate);
     }
-    
+
     public BigDecimal getMonthlyExpense(Long userId, int year, int month) {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
         return getTotalExpenseForPeriod(userId, startDate, endDate);
     }
-    
+
     // Godišnje statistike
     public BigDecimal getYearlyIncome(Long userId, int year) {
         LocalDate startDate = LocalDate.of(year, 1, 1);
         LocalDate endDate = LocalDate.of(year, 12, 31);
         return getTotalIncomeForPeriod(userId, startDate, endDate);
     }
-    
+
     public BigDecimal getYearlyExpense(Long userId, int year) {
         LocalDate startDate = LocalDate.of(year, 1, 1);
         LocalDate endDate = LocalDate.of(year, 12, 31);
         return getTotalExpenseForPeriod(userId, startDate, endDate);
     }
-    
+
     // Statistike po kategorijama
     public Map<String, BigDecimal> getCategoryStats(Long userId, LocalDate startDate, LocalDate endDate) {
         List<Object[]> results = transactionRepository.getSumByUserIdAndDateBetweenGroupByCategory(
-            userId, startDate, endDate);
-        
+                userId, startDate, endDate);
+
         Map<String, BigDecimal> categoryStats = new HashMap<>();
         for (Object[] result : results) {
             String categoryName = (String) result[0];
@@ -356,12 +356,12 @@ public class TransactionService {
         }
         return categoryStats;
     }
-    
-    public Map<String, BigDecimal> getCategoryStatsByType(Long userId, CategoryType type, 
+
+    public Map<String, BigDecimal> getCategoryStatsByType(Long userId, CategoryType type,
                                                           LocalDate startDate, LocalDate endDate) {
         List<Object[]> results = transactionRepository.getSumByUserIdAndTypeAndDateBetweenGroupByCategory(
-            userId, type, startDate, endDate);
-        
+                userId, type, startDate, endDate);
+
         Map<String, BigDecimal> categoryStats = new HashMap<>();
         for (Object[] result : results) {
             String categoryName = (String) result[0];
@@ -370,40 +370,40 @@ public class TransactionService {
         }
         return categoryStats;
     }
-    
+
     // Top troškovi
     public List<Transaction> getTopExpenses(Long userId, LocalDate startDate, LocalDate endDate, int limit) {
         return transactionRepository.findTopExpensesByUserIdAndDateBetween(
-            userId, startDate, endDate, PageRequest.of(0, limit));
+                userId, startDate, endDate, PageRequest.of(0, limit));
     }
-    
+
     // Top prihodi
     public List<Transaction> getTopIncomes(Long userId, LocalDate startDate, LocalDate endDate, int limit) {
         return transactionRepository.findTopIncomeByUserIdAndDateBetween(
-            userId, startDate, endDate, PageRequest.of(0, limit));
+                userId, startDate, endDate, PageRequest.of(0, limit));
     }
-    
+
     // Kompletna statistika za period
     public StatisticsDto getCompleteStatistics(Long userId, LocalDate startDate, LocalDate endDate) {
         BigDecimal totalIncome = getTotalIncomeForPeriod(userId, startDate, endDate);
         BigDecimal totalExpense = getTotalExpenseForPeriod(userId, startDate, endDate);
         Map<String, BigDecimal> categoryStats = getCategoryStats(userId, startDate, endDate);
-        
+
         // Top transakcije (5 najvećih troškova)
         List<Transaction> topExpenseTransactions = getTopExpenses(userId, startDate, endDate, 5);
         List<TransactionDto> topTransactions = topExpenseTransactions.stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-        
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
         return new StatisticsDto(totalIncome, totalExpense, categoryStats, null, topTransactions);
     }
-    
+
     // Statistike sa periodnim podacima
-    public StatisticsDto getStatisticsWithPeriods(Long userId, LocalDate startDate, LocalDate endDate, 
-                                                 String periodType) {
+    public StatisticsDto getStatisticsWithPeriods(Long userId, LocalDate startDate, LocalDate endDate,
+                                                  String periodType) {
         StatisticsDto baseStats = getCompleteStatistics(userId, startDate, endDate);
         List<PeriodStatDto> periodStats = new ArrayList<>();
-        
+
         switch (periodType.toLowerCase()) {
             case "daily":
                 periodStats = getDailyPeriodStats(userId, startDate, endDate);
@@ -418,67 +418,67 @@ public class TransactionService {
                 periodStats = getYearlyPeriodStats(userId, startDate, endDate);
                 break;
         }
-        
+
         baseStats.setPeriodStats(periodStats);
         return baseStats;
     }
-    
+
     // Helper metodi za period statistike
     private List<PeriodStatDto> getDailyPeriodStats(Long userId, LocalDate startDate, LocalDate endDate) {
         List<PeriodStatDto> periodStats = new ArrayList<>();
-        
+
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             BigDecimal income = getDailyIncome(userId, date);
             BigDecimal expense = getDailyExpense(userId, date);
-            
+
             PeriodStatDto periodStat = new PeriodStatDto(
-                date.toString(), date, income, expense);
+                    date.toString(), date, income, expense);
             periodStats.add(periodStat);
         }
-        
+
         return periodStats;
     }
-    
+
     private List<PeriodStatDto> getWeeklyPeriodStats(Long userId, LocalDate startDate, LocalDate endDate) {
         List<PeriodStatDto> periodStats = new ArrayList<>();
         WeekFields weekFields = WeekFields.of(Locale.getDefault());
-        
+
         LocalDate weekStart = startDate.with(weekFields.dayOfWeek(), 1);
-        
+
         while (!weekStart.isAfter(endDate)) {
             LocalDate weekEnd = weekStart.plusDays(6);
             if (weekEnd.isAfter(endDate)) weekEnd = endDate;
-            
+
             BigDecimal income = getTotalIncomeForPeriod(userId, weekStart, weekEnd);
             BigDecimal expense = getTotalExpenseForPeriod(userId, weekStart, weekEnd);
-            
-            String weekPeriod = weekStart.getYear() + "-W" + 
-                               weekStart.get(weekFields.weekOfYear());
-            
+
+            String weekPeriod = weekStart.getYear() + "-W" +
+                    weekStart.get(weekFields.weekOfYear());
+
             PeriodStatDto periodStat = new PeriodStatDto(
-                weekPeriod, weekStart, income, expense);
+                    weekPeriod, weekStart, income, expense);
             periodStats.add(periodStat);
-            
+
             weekStart = weekStart.plusWeeks(1);
         }
-        
+
         return periodStats;
     }
-    
+
     private List<PeriodStatDto> getMonthlyPeriodStats(Long userId, LocalDate startDate, LocalDate endDate) {
         List<PeriodStatDto> periodStats = new ArrayList<>();
-        
+
         LocalDate monthStart = startDate.withDayOfMonth(1);
-        
+
         while (!monthStart.isAfter(endDate)) {
             LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
             if (monthEnd.isAfter(endDate)) monthEnd = endDate;
-            
+
             BigDecimal income = getTotalIncomeForPeriod(userId, monthStart, monthEnd);
             BigDecimal expense = getTotalExpenseForPeriod(userId, monthStart, monthEnd);
-            
-            String monthPeriod = monthStart.getYear() + "-" + 
-                               String.format("%02d", monthStart.getMonthValue());
+
+            String monthPeriod = monthStart.getYear() + "-" +
+                    String.format("%02d", monthStart.getMonthValue());
 
             PeriodStatDto periodStat = new PeriodStatDto(monthPeriod, monthStart, income, expense);
             periodStats.add(periodStat);
@@ -511,16 +511,15 @@ public class TransactionService {
 
         return periodStats;
     }
-    
+
     // Transakcije po datumu
     public List<Transaction> getTransactionsByDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
         return transactionRepository.findByUserIdAndTransactionDateBetween(userId, startDate, endDate);
     }
 
     // Transakcije po kategoriji
-    public List<Transaction> getTransactionsByCategory(Long walletId, Category category) {
-        Wallet wallet = walletService.findById(walletId)
-            .orElseThrow(() -> new RuntimeException("Wallet nije pronađen!"));
+    public List<Transaction> getTransactionsByCategory(Long walletId, Long userId, Category category) {
+        Wallet wallet = walletService.findWalletById(walletId, userId);
         return transactionRepository.findByWalletAndCategory(wallet, category);
     }
 
@@ -528,7 +527,7 @@ public class TransactionService {
     public List<Transaction> getTransactionsByType(Long userId, CategoryType type) {
         return transactionRepository.findByUserIdAndType(userId, type);
     }
-    
+
     public TopTransactionsDto getTopTransactionsForUser(Long userId, LocalDate startDate, LocalDate endDate, int limit) {
         List<TransactionDto> topExpenses = getTopExpenses(userId, startDate, endDate, limit)
                 .stream().map(this::convertToDto).collect(Collectors.toList());
@@ -563,10 +562,11 @@ public class TransactionService {
                         .anyMatch(c2 -> c1.getCurrency().equals(c2.getCurrency())));
     }
 
+    // POPRAVKA: Eksplicitno korišćenje entity.Currency umesto java.util.Currency
     private BigDecimal calculateExchangeRate(Wallet fromWallet, Wallet toWallet) {
-        Currency fromCurrency = fromWallet.getCurrencies().stream().findFirst()
+        entity.Currency fromCurrency = fromWallet.getCurrencies().stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("Izvorni novčanik nema valutu"));
-        Currency toCurrency = toWallet.getCurrencies().stream().findFirst()
+        entity.Currency toCurrency = toWallet.getCurrencies().stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("Odredišni novčanik nema valutu"));
 
         BigDecimal fromToEur = BigDecimal.valueOf(fromCurrency.getValueToEur());

@@ -24,6 +24,7 @@ public class BudzetskiStedisaApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BudzetskiStedisaApplication.class, args);
 	}
+
 }
 
 

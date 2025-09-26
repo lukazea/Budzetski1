@@ -18,9 +18,7 @@ public class CurrencyService {
 
     @Autowired
     private CurrencyRepository currencyRepository;
-    
-    @Autowired
-    private RestTemplate restTemplate;
+
 
     // Kreiranje nové valute
     public Currency createCurrency(String currencyCode, float valueToEur) {

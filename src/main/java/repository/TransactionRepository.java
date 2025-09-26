@@ -35,8 +35,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByIsTransferTrue();
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
-           "AND (t.fromWallet.id = :walletId OR t.toWallet.id = :walletId) AND t.isTransfer = true")
+            "AND (t.fromWallet.id = :walletId OR t.toWallet.id = :walletId) AND t.isTransfer = true")
     List<Transaction> findTransfersByWallet(@Param("userId") Long userId, @Param("walletId") Long walletId);
+
+    // DODATO: Nedostajuća metoda za wallet transakcije
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND " +
+            "(t.wallet.id = :walletId OR t.fromWallet.id = :walletId OR t.toWallet.id = :walletId)")
+    List<Transaction> findAllTransactionsByWallet(@Param("userId") Long userId, @Param("walletId") Long walletId);
 
     List<Transaction> findByWalletAndCategory(Wallet wallet, Category category);
     List<Transaction> findByCategoryAndTransactionDateBetween(Category category, LocalDate startDate, LocalDate endDate);
@@ -46,9 +51,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate")
     List<Transaction> findByUserIdAndTypeAndTransactionDateBetween(@Param("userId") Long userId,
-                                                                  @Param("type") CategoryType type,
-                                                                  @Param("startDate") LocalDate startDate,
-                                                                  @Param("endDate") LocalDate endDate);
+                                                                   @Param("type") CategoryType type,
+                                                                   @Param("startDate") LocalDate startDate,
+                                                                   @Param("endDate") LocalDate endDate);
 
     List<Transaction> findByRecurringTemplateIsNotNull();
     List<Transaction> findByUserIdAndRecurringTemplateIsNotNull(Long userId);
@@ -74,12 +79,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     // ----- Admin filtrirane metode -----
     @Query("SELECT t FROM Transaction t WHERE " +
-           "(:userId IS NULL OR t.user.id = :userId) AND " +
-           "(:categoryId IS NULL OR t.category.id = :categoryId) AND " +
-           "(:minAmount IS NULL OR t.amount >= :minAmount) AND " +
-           "(:maxAmount IS NULL OR t.amount <= :maxAmount) AND " +
-           "(:startDate IS NULL OR t.transactionDate >= :startDate) AND " +
-           "(:endDate IS NULL OR t.transactionDate <= :endDate)")
+            "(:userId IS NULL OR t.user.id = :userId) AND " +
+            "(:categoryId IS NULL OR t.category.id = :categoryId) AND " +
+            "(:minAmount IS NULL OR t.amount >= :minAmount) AND " +
+            "(:maxAmount IS NULL OR t.amount <= :maxAmount) AND " +
+            "(:startDate IS NULL OR t.transactionDate >= :startDate) AND " +
+            "(:endDate IS NULL OR t.transactionDate <= :endDate)")
     Page<Transaction> findFilteredTransactions(@Param("userId") Long userId,
                                                @Param("categoryId") Long categoryId,
                                                @Param("minAmount") BigDecimal minAmount,
@@ -96,7 +101,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Page<Transaction> findByAmountBetween(BigDecimal minAmount, BigDecimal maxAmount, Pageable pageable);
     Page<Transaction> findByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    @Query("SELECT t FROM Transaction t WHERE t.date >= :since ORDER BY t.amount DESC")
+    @Query("SELECT t FROM Transaction t WHERE t.transactionDate >= :since ORDER BY t.amount DESC")
     List<Transaction> findTopTransactionsSince(@Param("since") LocalDate since, Pageable pageable);
 
     @Query("SELECT t FROM Transaction t WHERE t.createdAt >= :since ORDER BY t.amount DESC")
@@ -111,6 +116,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.category.id = :categoryId")
     BigDecimal sumAmountByCategoryId(@Param("categoryId") Long categoryId);
 
+    // DODATO: Nedostajuća metoda za sumu po korisniku, tipu i datumu
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId AND t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate")
+    BigDecimal getSumByUserIdAndTypeAndDateBetween(@Param("userId") Long userId,
+                                                   @Param("type") CategoryType type,
+                                                   @Param("startDate") LocalDate startDate,
+                                                   @Param("endDate") LocalDate endDate);
+
     @Query("SELECT t FROM Transaction t ORDER BY t.amount DESC")
     Page<Transaction> findTopTransactions(Pageable pageable);
 
@@ -120,63 +132,63 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     // ----- Statističke metode po kategorijama, danima, nedeljama, mesecima -----
     @Query("SELECT c.name, SUM(t.amount) FROM Transaction t JOIN t.category c WHERE t.user.id = :userId AND t.transactionDate BETWEEN :startDate AND :endDate GROUP BY c.id, c.name")
     List<Object[]> getSumByUserIdAndDateBetweenGroupByCategory(@Param("userId") Long userId,
-                                                              @Param("startDate") LocalDate startDate,
-                                                              @Param("endDate") LocalDate endDate);
+                                                               @Param("startDate") LocalDate startDate,
+                                                               @Param("endDate") LocalDate endDate);
 
     @Query("SELECT c.name, SUM(t.amount) FROM Transaction t JOIN t.category c WHERE t.user.id = :userId AND t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate GROUP BY c.id, c.name")
     List<Object[]> getSumByUserIdAndTypeAndDateBetweenGroupByCategory(@Param("userId") Long userId,
-                                                                     @Param("type") CategoryType type,
-                                                                     @Param("startDate") LocalDate startDate,
-                                                                     @Param("endDate") LocalDate endDate);
+                                                                      @Param("type") CategoryType type,
+                                                                      @Param("startDate") LocalDate startDate,
+                                                                      @Param("endDate") LocalDate endDate);
 
     @Query("SELECT YEAR(t.transactionDate), MONTH(t.transactionDate), SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId AND t.type = :type AND YEAR(t.transactionDate) = :year GROUP BY YEAR(t.transactionDate), MONTH(t.transactionDate) ORDER BY MONTH(t.transactionDate)")
     List<Object[]> getMonthlyStatsByUserIdAndTypeAndYear(@Param("userId") Long userId,
-                                                        @Param("type") CategoryType type,
-                                                        @Param("year") int year);
+                                                         @Param("type") CategoryType type,
+                                                         @Param("year") int year);
 
     @Query("SELECT WEEK(t.transactionDate), SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId AND t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate GROUP BY WEEK(t.transactionDate) ORDER BY WEEK(t.transactionDate)")
     List<Object[]> getWeeklyStatsByUserIdAndTypeAndDateBetween(@Param("userId") Long userId,
+                                                               @Param("type") CategoryType type,
+                                                               @Param("startDate") LocalDate startDate,
+                                                               @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT t.transactionDate, SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId AND t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate GROUP BY t.transactionDate ORDER BY t.transactionDate")
+    List<Object[]> getDailyStatsByUserIdAndTypeAndDateBetween(@Param("userId") Long userId,
                                                               @Param("type") CategoryType type,
                                                               @Param("startDate") LocalDate startDate,
                                                               @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT t.transactionDate, SUM(t.amount) FROM Transaction t WHERE t.user.id = :userId AND t.type = :type AND t.transactionDate BETWEEN :startDate AND :endDate GROUP BY t.transactionDate ORDER BY t.transactionDate")
-    List<Object[]> getDailyStatsByUserIdAndTypeAndDateBetween(@Param("userId") Long userId,
-                                                             @Param("type") CategoryType type,
-                                                             @Param("startDate") LocalDate startDate,
-                                                             @Param("endDate") LocalDate endDate);
-
     // ----- Top prihodi/troškovi -----
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.type = 'TROSAK' AND t.transactionDate BETWEEN :startDate AND :endDate ORDER BY t.amount DESC")
     List<Transaction> findTopExpensesByUserIdAndDateBetween(@Param("userId") Long userId,
-                                                           @Param("startDate") LocalDate startDate,
-                                                           @Param("endDate") LocalDate endDate,
-                                                           Pageable pageable);
+                                                            @Param("startDate") LocalDate startDate,
+                                                            @Param("endDate") LocalDate endDate,
+                                                            Pageable pageable);
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.type = 'PRIHOD' AND t.transactionDate BETWEEN :startDate AND :endDate ORDER BY t.amount DESC")
     List<Transaction> findTopIncomeByUserIdAndDateBetween(@Param("userId") Long userId,
-                                                         @Param("startDate") LocalDate startDate,
-                                                         @Param("endDate") LocalDate endDate,
-                                                         Pageable pageable);
+                                                          @Param("startDate") LocalDate startDate,
+                                                          @Param("endDate") LocalDate endDate,
+                                                          Pageable pageable);
 
     // ----- Filteri po sumi i kombinovani filteri -----
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.amount >= :minAmount AND t.transactionDate BETWEEN :startDate AND :endDate ORDER BY t.transactionDate DESC")
     List<Transaction> findByUserIdAndAmountGreaterThanEqualAndDateBetween(@Param("userId") Long userId,
-                                                                         @Param("minAmount") BigDecimal minAmount,
-                                                                         @Param("startDate") LocalDate startDate,
-                                                                         @Param("endDate") LocalDate endDate);
+                                                                          @Param("minAmount") BigDecimal minAmount,
+                                                                          @Param("startDate") LocalDate startDate,
+                                                                          @Param("endDate") LocalDate endDate);
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.amount BETWEEN :minAmount AND :maxAmount AND t.transactionDate BETWEEN :startDate AND :endDate ORDER BY t.transactionDate DESC")
     List<Transaction> findByUserIdAndAmountBetweenAndDateBetween(@Param("userId") Long userId,
-                                                               @Param("minAmount") BigDecimal minAmount,
-                                                               @Param("maxAmount") BigDecimal maxAmount,
-                                                               @Param("startDate") LocalDate startDate,
-                                                               @Param("endDate") LocalDate endDate);
+                                                                 @Param("minAmount") BigDecimal minAmount,
+                                                                 @Param("maxAmount") BigDecimal maxAmount,
+                                                                 @Param("startDate") LocalDate startDate,
+                                                                 @Param("endDate") LocalDate endDate);
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.category.id = :categoryId AND t.amount >= :minAmount AND t.transactionDate BETWEEN :startDate AND :endDate ORDER BY t.transactionDate DESC")
     List<Transaction> findByUserIdAndCategoryIdAndAmountGreaterThanEqualAndDateBetween(@Param("userId") Long userId,
-                                                                                      @Param("categoryId") Long categoryId,
-                                                                                      @Param("minAmount") BigDecimal minAmount,
-                                                                                      @Param("startDate") LocalDate startDate,
-                                                                                      @Param("endDate") LocalDate endDate);
+                                                                                       @Param("categoryId") Long categoryId,
+                                                                                       @Param("minAmount") BigDecimal minAmount,
+                                                                                       @Param("startDate") LocalDate startDate,
+                                                                                       @Param("endDate") LocalDate endDate);
 }

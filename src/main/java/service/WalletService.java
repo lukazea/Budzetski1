@@ -105,6 +105,11 @@ public class WalletService {
         return convertToDto(walletRepository.save(wallet));
     }
 
+    public Wallet findWalletById(Long walletId, Long userId) {
+        return walletRepository.findByIdAndUserId(walletId, userId)
+                .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
+    }
+
     public void archiveWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -150,11 +155,12 @@ public class WalletService {
         dto.setArchived(wallet.isArchived());
 
         if (wallet.getCurrencies() != null) {
-            Set<Long> currencyIds = wallet.getCurrencies().stream()
-                    .map(Currency::getId)
+            Set<String> currencyCodes = wallet.getCurrencies().stream()
+                    .map(Currency::getCurrency)
                     .collect(Collectors.toSet());
-            dto.setCurrencyIds(currencyIds);
+            dto.setCurrencies(currencyCodes);
         }
+
 
         return dto;
     }

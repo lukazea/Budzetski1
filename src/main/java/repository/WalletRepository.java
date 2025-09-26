@@ -31,11 +31,11 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
     Long countActiveByUserId(@Param("userId") Long userId);
 
     // ----- Dashboard / statistike -----
-    @Query("SELECT SUM(w.balance) FROM Wallet w")
+    @Query("SELECT SUM(w.currentBalance) FROM Wallet w")
     BigDecimal getTotalSystemBalance();
 
-    @Query("SELECT AVG(w.balance) FROM Wallet w " +
-           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = w.user.id AND t.date >= :since)")
+    @Query("SELECT AVG(w.currentBalance) FROM Wallet w " +
+           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = w.user.id AND t.transactionDate >= :since)")
     BigDecimal getAverageBalanceForActiveUsers(@Param("since") LocalDate since);
 
     @Query("SELECT SUM(w.currentBalance) FROM Wallet w WHERE w.user.id = :userId AND w.archived = false")

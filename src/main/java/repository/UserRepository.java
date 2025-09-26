@@ -32,12 +32,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // ----- Aktivnost korisnika (Dashboard) -----
     // Broj aktivnih korisnika sa transakcijama u poslednjih X dana
     @Query("SELECT COUNT(DISTINCT u.id) FROM User u " +
-           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = u.id AND t.date >= :since)")
+           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = u.id AND t.transactionDate >= :since)")
     Long countActiveUsersSince(@Param("since") LocalDate since);
 
-    // Broj aktivnih korisnika po transakcijama ili wallet operacijama
     @Query("SELECT COUNT(DISTINCT u.id) FROM User u " +
-           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = u.id AND t.date >= :since) " +
-           "OR EXISTS (SELECT 1 FROM Wallet w WHERE w.user.id = u.id AND w.lastActivity >= :since)")
+            "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = u.id AND t.transactionDate >= :since) " +
+            "OR EXISTS (SELECT 1 FROM Wallet w JOIN w.transactions t2 " +
+            "           WHERE w.user.id = u.id AND t2.transactionDate >= :since)")
     Long countActiveUsersWithWalletActivity(@Param("since") LocalDate since);
+
 }
