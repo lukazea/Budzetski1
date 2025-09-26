@@ -26,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Proveri da li je korisnik blokiran
     boolean existsByIdAndBlockedTrue(Long id);
+
+    // Prva funkcionalnost - broj registrovanih korisnika
+    // Koristi se ugrađena count() metoda iz JpaRepository
 }
