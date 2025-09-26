@@ -24,7 +24,19 @@ public class CategoryService {
     @Autowired
     private UserRepository userRepository;
 
-    // Kreiranje predefinisanih kategorija (za nove korisnike)
+    // ----- Osnovne metode -----
+    public Optional<Category> findByIdOptional(Long id) {
+        return categoryRepository.findById(id);
+    }
+
+    public CategoryDto findById(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena"));
+        return convertToDto(category);
+    }
+
+    // ----- Kreiranje kategorija -----
+    // Kreiranje predefinisanih kategorija za novog korisnika
     public void createDefaultCategories(User user) {
         createCategoryIfNotExists("Plata", CategoryType.PRIHOD, true, null);
         createCategoryIfNotExists("Bonus", CategoryType.PRIHOD, true, null);
@@ -48,7 +60,7 @@ public class CategoryService {
         }
     }
 
-    // Kreiranje custom kategorije
+    // Kreiranje custom korisničke kategorije
     public Category createUserCategory(String name, CategoryType type, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
@@ -61,7 +73,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    // Ažuriranje kategorije
+    // ----- Ažuriranje i brisanje -----
     public Category updateCategory(Long categoryId, String newName) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
@@ -74,7 +86,6 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    // Brisanje kategorije
     public void deleteCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
@@ -90,7 +101,7 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    // Pronađi dostupne kategorije za korisnika
+    // ----- Dohvatanje kategorija -----
     public List<CategoryDto> getAvailableCategories(Long userId) {
         List<Category> categories = categoryRepository.findAvailableForUser(userId);
         return categories.stream()
@@ -98,7 +109,6 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    // Pronađi kategorije po tipu
     public List<CategoryDto> getCategoriesByType(Long userId, CategoryType type) {
         List<Category> categories = categoryRepository.findByTypeAndAvailableForUser(type, userId);
         return categories.stream()
@@ -106,7 +116,6 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    // Pronađi samo korisničke kategorije
     public List<CategoryDto> getUserCategories(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
@@ -116,19 +125,11 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    // Pronađi kategoriju po ID
-    public CategoryDto findById(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena"));
-        return convertToDto(category);
-    }
-
-    // Proveri da li korisnik može koristiti kategoriju
     public boolean isAvailableForUser(Long categoryId, Long userId) {
         return categoryRepository.isAvailableForUser(categoryId, userId);
     }
 
-    // Konvertovanje entiteta u DTO
+    // ----- Konverzija u DTO -----
     private CategoryDto convertToDto(Category category) {
         CategoryDto dto = new CategoryDto();
         dto.setId(category.getId());

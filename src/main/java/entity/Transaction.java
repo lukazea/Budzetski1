@@ -46,8 +46,6 @@ public class Transaction implements Serializable {
     @JoinColumn(name = "user_id")
     private User user;
 
-
-
     // Dodao za transakcije sa novcanika na novcanik
     @ManyToOne
     @JoinColumn(name = "from_wallet_id")
@@ -64,15 +62,24 @@ public class Transaction implements Serializable {
     private BigDecimal toAmount;
 
     // dodato ukoliko nisu ista valute
-
     @Column(name = "EXCHANGE_RATE", precision = 19, scale = 8)
     private BigDecimal exchangeRate;
 
     @Column(name = "IS_TRANSFER", nullable = false)
     private boolean isTransfer = false;
 
+    // dodato za dashboard
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     public Long getId() { return id; }
     public void setId(Long id) {this.id = id;}
+    
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -111,13 +118,25 @@ public class Transaction implements Serializable {
     public BigDecimal getToAmount() { return toAmount; }
     public void setToAmount(BigDecimal toAmount) { this.toAmount = toAmount; }
 
-    // novi geteri i seteri
-
     public BigDecimal getExchangeRate() { return exchangeRate; }
     public void setExchangeRate(BigDecimal exchangeRate) { this.exchangeRate = exchangeRate; }
 
     public boolean isTransfer() { return isTransfer; }
     public void setTransfer(boolean transfer) { this.isTransfer = transfer; }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     @Override
     public String toString() {
@@ -132,27 +151,4 @@ public class Transaction implements Serializable {
                 + ", user=" + (user != null ? user.getId() : "null")
                 + "]";
     }
-    
-    //dodato za dashboard
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
 }

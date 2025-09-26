@@ -1,5 +1,7 @@
 package controller;
 
+import dto.StatisticsDto;
+import dto.TopTransactionsDto;
 import dto.TransactionDto;
 import entity.Transaction;
 import entity.CategoryType;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -30,6 +33,8 @@ public class TransactionController {
 
     @Autowired
     private CategoryService categoryService;
+
+    // ==================== ADMIN ENDPOINTS ====================
 
     // Admin: sve transakcije sa paginacijom
     @GetMapping("/admin/all")
@@ -70,7 +75,7 @@ public class TransactionController {
 
     // Admin: transakcije po korisniku
     @GetMapping("/admin/user/{userId}")
-    public ResponseEntity<Page<TransactionDto>> getTransactionsByUser(
+    public ResponseEntity<Page<TransactionDto>> getAdminTransactionsByUser(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "date") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
@@ -89,7 +94,7 @@ public class TransactionController {
 
     // Admin: transakcije po kategoriji
     @GetMapping("/admin/category/{categoryId}")
-    public ResponseEntity<Page<TransactionDto>> getTransactionsByCategory(
+    public ResponseEntity<Page<TransactionDto>> getAdminTransactionsByCategory(
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "date") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
@@ -106,7 +111,8 @@ public class TransactionController {
         return ResponseEntity.ok(transactionDtos);
     }
 
-    // Standard CRUD i filtriranje po korisniku/novčaniku/datumima (iz main verzije)
+    // ==================== CRUD OPERATIONS ====================
+
     @PostMapping
     public ResponseEntity<TransactionDto> createTransaction(@RequestBody TransactionDto transactionDto) {
         try {
@@ -126,6 +132,33 @@ public class TransactionController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @PutMapping("/{transactionId}")
+    public ResponseEntity<TransactionDto> updateTransaction(
+            @PathVariable Long transactionId,
+            @RequestBody TransactionDto transactionDto,
+            @RequestParam Long userId) {
+        try {
+            TransactionDto updated = transactionService.updateTransaction(transactionId, transactionDto, userId);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @DeleteMapping("/{transactionId}")
+    public ResponseEntity<Void> deleteTransaction(
+            @PathVariable Long transactionId,
+            @RequestParam Long userId) {
+        try {
+            transactionService.deleteTransaction(transactionId, userId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // ==================== USER TRANSACTION QUERIES ====================
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TransactionDto>> getUserTransactions(@PathVariable Long userId) {
@@ -148,6 +181,46 @@ public class TransactionController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    // ==================== FILTERING ENDPOINTS ====================
+
+    // Filtriraj transakcije po datumu
+    @GetMapping("/user/{userId}/date-range")
+    public ResponseEntity<List<TransactionDto>> getTransactionsByDateRange(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        List<Transaction> transactions = transactionService.getTransactionsByDateRange(userId, startDate, endDate);
+        return ResponseEntity.ok(
+            transactions.stream().map(TransactionDto::new).collect(Collectors.toList())
+        );
+    }
+
+    // Filtriraj transakcije po kategoriji (user endpoint)
+    @GetMapping("/wallet/{walletId}/category/{categoryId}")
+    public ResponseEntity<List<TransactionDto>> getTransactionsByCategory(
+            @PathVariable Long walletId,
+            @PathVariable Long categoryId) {
+        Category category = categoryService.findById(categoryId)
+            .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
+        List<Transaction> transactions = transactionService.getTransactionsByCategory(walletId, category);
+        return ResponseEntity.ok(
+            transactions.stream().map(TransactionDto::new).collect(Collectors.toList())
+        );
+    }
+
+    // Filtriraj transakcije po tipu
+    @GetMapping("/user/{userId}/type/{type}")
+    public ResponseEntity<List<TransactionDto>> getTransactionsByType(
+            @PathVariable Long userId,
+            @PathVariable CategoryType type) {
+        List<Transaction> transactions = transactionService.getTransactionsByType(userId, type);
+        return ResponseEntity.ok(
+            transactions.stream().map(TransactionDto::new).collect(Collectors.toList())
+        );
+    }
+
+    // ==================== TIME-BASED QUERIES ====================
 
     @GetMapping("/daily")
     public ResponseEntity<List<TransactionDto>> getDailyTransactions(
@@ -199,6 +272,8 @@ public class TransactionController {
         }
     }
 
+    // ==================== PAGINATION ENDPOINTS ====================
+
     @GetMapping("/paginated")
     public ResponseEntity<Page<TransactionDto>> getTransactionsPaginated(
             @RequestParam Long userId,
@@ -228,30 +303,66 @@ public class TransactionController {
         }
     }
 
-    @PutMapping("/{transactionId}")
-    public ResponseEntity<TransactionDto> updateTransaction(
-            @PathVariable Long transactionId,
-            @RequestBody TransactionDto transactionDto,
-            @RequestParam Long userId) {
-        try {
-            TransactionDto updated = transactionService.updateTransaction(transactionId, transactionDto, userId);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    // ==================== STATISTICS ENDPOINTS ====================
+
+    // Statistike - ukupni prihodi za period
+    @GetMapping("/user/{userId}/stats/income")
+    public ResponseEntity<BigDecimal> getTotalIncomeForPeriod(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(transactionService.getTotalIncomeForPeriod(userId, startDate, endDate));
     }
 
-    @DeleteMapping("/{transactionId}")
-    public ResponseEntity<Void> deleteTransaction(
-            @PathVariable Long transactionId,
-            @RequestParam Long userId) {
-        try {
-            transactionService.deleteTransaction(transactionId, userId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    // Statistike - ukupni troškovi za period
+    @GetMapping("/user/{userId}/stats/expense")
+    public ResponseEntity<BigDecimal> getTotalExpenseForPeriod(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(transactionService.getTotalExpenseForPeriod(userId, startDate, endDate));
     }
+
+    // Top transakcije
+    @GetMapping("/top")
+    public ResponseEntity<List<TransactionDto>> getTopTransactions(
+            @RequestParam LocalDate since,
+            @RequestParam(defaultValue = "10") int limit) {
+        List<Transaction> transactions = transactionService.getTopTransactions(since, limit);
+        return ResponseEntity.ok(
+            transactions.stream().map(TransactionDto::new).collect(Collectors.toList())
+        );
+    }
+
+    // Kompletna statistika za period
+    @GetMapping("/user/{userId}/stats/complete")
+    public ResponseEntity<StatisticsDto> getCompleteStatistics(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(transactionService.getCompleteStatistics(userId, startDate, endDate));
+    }
+
+    // Statistike sa periodima (daily, weekly, monthly, yearly)
+    @GetMapping("/user/{userId}/stats/periods")
+    public ResponseEntity<StatisticsDto> getStatisticsWithPeriods(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam String periodType) {
+        return ResponseEntity.ok(transactionService.getStatisticsWithPeriods(userId, startDate, endDate, periodType));
+    }
+    
+    @GetMapping("/user/{userId}/stats/top")
+    public ResponseEntity<TopTransactionsDto> getTopTransactionsForUser(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(transactionService.getTopTransactionsForUser(userId, startDate, endDate, limit));
+    }
+
+    // ==================== UTILITY METHODS ====================
 
     // Validacija sort parametra
     private String validateSortBy(String sortBy) {

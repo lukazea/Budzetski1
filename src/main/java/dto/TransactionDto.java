@@ -8,12 +8,12 @@ import java.time.LocalDateTime;
 
 public class TransactionDto {
     private Long id;
-    private String name;                // ili description
+    private String name;                // opis transakcije
     private BigDecimal amount;
     private CategoryType type;
     private Long categoryId;
     private String categoryName;
-    private LocalDate transactionDate;  // date
+    private LocalDate transactionDate;  // datum transakcije
     private Long walletId;
     private String walletName;
     private Long userId;
@@ -32,14 +32,13 @@ public class TransactionDto {
     // Za recurring template
     private Long recurringTemplateId;
 
-    // TIMESTAMP POLJA - POTREBNO ZA DASHBOARD
+    // TIMESTAMP POLJA - potrebna za dashboard
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     // ----- KONSTRUKTORI -----
     public TransactionDto() {}
 
-    // Konstruktor iz Transaction entiteta
     public TransactionDto(Transaction transaction) {
         this.id = transaction.getId();
         this.amount = transaction.getAmount();
@@ -154,7 +153,7 @@ public class TransactionDto {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    // Dodatni helper metode za formatiranje
+    // ----- HELPER METODE -----
     public String getFormattedAmount() {
         return amount != null ? amount.toString() : "0.00";
     }
@@ -163,4 +162,3 @@ public class TransactionDto {
         return amount != null && currencyCode != null ? amount.toString() + " " + currencyCode : "0.00";
     }
 }
-

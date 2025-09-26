@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,16 @@ public class WalletService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
-    // Kreiranje štednog novčanika
+    // ----- Osnovne metode -----
+    public Optional<Wallet> findByIdOptional(Long id) {
+        return walletRepository.findById(id);
+    }
+
+    public Wallet save(Wallet wallet) {
+        return walletRepository.save(wallet);
+    }
+
+    // ----- Kreiranje novčanika -----
     public Wallet createSavingsWallet(User user, String name, Currency currency) {
         Wallet wallet = new Wallet();
         wallet.setUser(user);
@@ -47,7 +57,6 @@ public class WalletService {
         return walletRepository.save(wallet);
     }
 
-    // Dodavanje običnog novčanika
     public WalletDto createWallet(Wallet wallet, Long userId, String currencyCode) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
@@ -66,28 +75,26 @@ public class WalletService {
         return convertToDto(saved);
     }
 
-    // Pregled aktivnih novčanika korisnika
+    // ----- Dohvatanje novčanika -----
     public List<WalletDto> getUserWallets(Long userId) {
         return walletRepository.findByUserIdAndArchivedFalse(userId)
                 .stream().map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    // Pregled arhiviranih novčanika
     public List<WalletDto> getArchivedUserWallets(Long userId) {
         return walletRepository.findByUserIdAndArchivedTrue(userId)
                 .stream().map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    // Pronađi novčanik po ID
     public WalletDto findById(Long walletId, Long userId) {
         Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
         return convertToDto(wallet);
     }
 
-    // Uređivanje novčanika
+    // ----- Uređivanje i arhiviranje -----
     public WalletDto updateWallet(Long walletId, Wallet updatedWallet) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -98,7 +105,6 @@ public class WalletService {
         return convertToDto(walletRepository.save(wallet));
     }
 
-    // Arhiviranje novčanika
     public void archiveWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -106,7 +112,6 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    // Aktiviranje novčanika
     public void activateWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -114,27 +119,25 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    // Brisanje novčanika
     public void deleteWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
         walletRepository.delete(wallet);
     }
 
-    // Ukupno stanje korisnika
+    // ----- Statistika -----
     public BigDecimal getTotalUserBalance(Long userId) {
         BigDecimal total = walletRepository.getTotalBalanceByUserId(userId);
         return total != null ? total : BigDecimal.ZERO;
     }
 
-    // Stanje pojedinačnog novčanika
     public BigDecimal getWalletBalance(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
         return wallet.getCurrentBalance();
     }
 
-    // Konverzija Wallet -> WalletDto
+    // ----- Konverzija Wallet -> WalletDto -----
     private WalletDto convertToDto(Wallet wallet) {
         WalletDto dto = new WalletDto();
         dto.setId(wallet.getId());
@@ -156,4 +159,3 @@ public class WalletService {
         return dto;
     }
 }
-
