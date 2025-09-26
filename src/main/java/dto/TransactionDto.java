@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class TransactionDto {
-
     private Long id;
     private String name;
     private BigDecimal amount;
@@ -34,11 +33,11 @@ public class TransactionDto {
     // ----- KONSTRUKTORI -----
     public TransactionDto() {}
 
-    // Konstruktor iz Transaction entiteta (admin_korisnici)
+    // Konstruktor iz Transaction entiteta
     public TransactionDto(Transaction transaction) {
         this.id = transaction.getId();
         this.amount = transaction.getAmount();
-        this.description = transaction.getName();
+        this.name = transaction.getName();
         this.transactionDate = transaction.getTransactionDate();
         this.categoryName = transaction.getCategory() != null ? transaction.getCategory().getName() : null;
         this.walletName = transaction.getWallet() != null ? transaction.getWallet().getName() : null;
@@ -53,7 +52,7 @@ public class TransactionDto {
         }
     }
 
-    // Konstruktor za običnu transakciju (main)
+    // Konstruktor za običnu transakciju
     public TransactionDto(String name, BigDecimal amount, CategoryType type,
                           Long categoryId, LocalDate transactionDate, Long walletId, Long userId) {
         this.name = name;
@@ -66,7 +65,7 @@ public class TransactionDto {
         this.isTransfer = false;
     }
 
-    // Konstruktor za transfer (main)
+    // Konstruktor za transfer
     public TransactionDto(String name, Long fromWalletId, Long toWalletId,
                           BigDecimal fromAmount, BigDecimal toAmount,
                           LocalDate transactionDate, Long userId) {
@@ -138,3 +137,4 @@ public class TransactionDto {
     public Long getRecurringTemplateId() { return recurringTemplateId; }
     public void setRecurringTemplateId(Long recurringTemplateId) { this.recurringTemplateId = recurringTemplateId; }
 }
+

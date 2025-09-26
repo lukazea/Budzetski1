@@ -52,13 +52,10 @@ public class UserController {
                                                @RequestBody UserDto userDto) {
         try {
             UserDto updatedUser = userService.updateUserProfile(userId, userDto);
-
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Profil je uspešno ažuriran");
             response.put("user", updatedUser);
-
             return ResponseEntity.ok(response);
-
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
@@ -77,11 +74,9 @@ public class UserController {
                                                       @RequestBody Map<String, Object> updates) {
         try {
             UserDto updatedUser = userService.partialUpdateUserProfile(userId, updates);
-
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Profil je uspešno ažuriran");
             response.put("user", updatedUser);
-
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
