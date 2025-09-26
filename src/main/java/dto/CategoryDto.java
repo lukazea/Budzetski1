@@ -1,5 +1,6 @@
 package dto;
 
+import entity.Category;
 import entity.CategoryType;
 
 public class CategoryDto {
@@ -8,10 +9,25 @@ public class CategoryDto {
     private CategoryType type;
     private boolean predefined;
     private Long userId;
+    private String userName;
 
-    // Konstruktori
+    // --- Konstruktor bez parametara ---
     public CategoryDto() {}
 
+    // --- Konstruktor iz entiteta Category ---
+    public CategoryDto(Category category) {
+        this.id = category.getId();
+        this.name = category.getName();
+        this.type = category.getType();
+        this.predefined = category.isPredefined();
+
+        if (category.getUser() != null) {
+            this.userId = category.getUser().getId();
+            this.userName = category.getUser().getUserName();
+        }
+    }
+
+    // --- Konstruktor sa parametrima ---
     public CategoryDto(String name, CategoryType type, boolean predefined, Long userId) {
         this.name = name;
         this.type = type;
@@ -19,7 +35,7 @@ public class CategoryDto {
         this.userId = userId;
     }
 
-    // Getteri i setteri
+    // --- Getteri i setteri ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -34,4 +50,7 @@ public class CategoryDto {
 
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 }

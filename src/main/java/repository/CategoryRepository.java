@@ -2,6 +2,7 @@ package repository;
 
 import entity.Category;
 import entity.CategoryType;
+import entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,31 +14,44 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    // Pronađi sve kategorije korisnika (uključujući predefinisane)
-    @Query("SELECT c FROM Category c WHERE c.user.id = :userId OR c.predefined = true")
-    List<Category> findAvailableForUser(@Param("userId") Long userId);
-
-    // Pronađi samo korisničke kategorije
-    List<Category> findByUserId(Long userId);
-
-    // Pronađi predefinisane kategorije
+    // --- Predefinisane kategorije (globalne) ---
     List<Category> findByPredefinedTrue();
 
-    // Pronađi kategorije po tipu
+    // --- Kategorije određenog korisnika (custom) ---
+    List<Category> findByUser(User user);
+    List<Category> findByUserId(Long userId);
+    List<Category> findByUserAndPredefinedFalse(User user);
+
+    // --- Kombinovano - predefinisane + korisničke ---
+    @Query("SELECT c FROM Category c WHERE c.predefined = true OR c.user.id = :userId")
+    List<Category> findAvailableForUser(@Param("userId") Long userId);
+
+    // --- Po tipu kategorije ---
     List<Category> findByType(CategoryType type);
+    List<Category> findByTypeAndPredefinedTrue(CategoryType type);
 
-    // Pronađi kategorije korisnika po tipu
-    @Query("SELECT c FROM Category c WHERE (c.user.id = :userId OR c.predefined = true) AND c.type = :type")
-    List<Category> findByUserAndType(@Param("userId") Long userId, @Param("type") CategoryType type);
+    @Query("SELECT c FROM Category c WHERE c.type = :type AND (c.predefined = true OR c.user.id = :userId)")
+    List<Category> findByTypeAndAvailableForUser(@Param("type") CategoryType type, @Param("userId") Long userId);
 
-    // Proveri da li kategorija pripada korisniku ili je predefinisana
+    // --- Za admin - sve kategorije ---
+    List<Category> findByOrderByNameAsc();
+
+    // --- Provera postojanja kategorije sa imenom ---
+    boolean existsByNameAndUser(String name, User user);
+    boolean existsByNameAndPredefinedTrue(String name);
+
+    // --- Kategorije sa transakcijama (za statistike) ---
+    @Query("SELECT DISTINCT c FROM Category c JOIN c.transactions t WHERE t.user.id = :userId")
+    List<Category> findCategoriesWithTransactionsByUserId(@Param("userId") Long userId);
+
+    // --- Provera da li kategorija pripada korisniku ili je predefinisana ---
     @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Category c " +
-            "WHERE c.id = :categoryId AND (c.user.id = :userId OR c.predefined = true)")
+           "WHERE c.id = :categoryId AND (c.user.id = :userId OR c.predefined = true)")
     boolean isAvailableForUser(@Param("categoryId") Long categoryId, @Param("userId") Long userId);
 
-    // Pronađi kategoriju po nazivu za korisnika
+    // --- Pronađi kategoriju po nazivu za korisnika ---
     Optional<Category> findByNameAndUserId(String name, Long userId);
 
-    // Pronađi predefinisanu kategoriju po nazivu
+    // --- Pronađi predefinisanu kategoriju po nazivu ---
     Optional<Category> findByNameAndPredefinedTrue(String name);
 }
