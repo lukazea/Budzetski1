@@ -8,6 +8,9 @@ import java.util.Optional;
 @Repository
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
 
+    // Pronađi valutu po kodu (npr. "USD", "EUR")
+    Optional<Currency> findByCode(String code);
+
     // Pronađi valutu po nazivu
     Optional<Currency> findByCurrency(String currency);
 

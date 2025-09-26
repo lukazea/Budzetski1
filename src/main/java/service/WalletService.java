@@ -1,20 +1,20 @@
 package service;
 
 import dto.WalletDto;
-import entity.Wallet;
-import entity.User;
 import entity.Currency;
-import repository.WalletRepository;
-import repository.UserRepository;
-import repository.CurrencyRepository;
+import entity.User;
+import entity.Wallet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import repository.WalletRepository;
+import repository.UserRepository;
+import repository.CurrencyRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,23 @@ public class WalletService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
-    // 2.1 Funkcionalnost: Dodavanje novčanika
+    // Kreiranje štednog novčanika
+    public Wallet createSavingsWallet(User user, String name, Currency currency) {
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setName(name);
+
+        Set<Currency> currencySet = new HashSet<>();
+        currencySet.add(currency);
+        wallet.setCurrencies(currencySet);
+
+        wallet.setSavings(true);
+        wallet.setCurrentBalance(BigDecimal.ZERO);
+        wallet.setCreationDate(LocalDate.now());
+        return walletRepository.save(wallet);
+    }
+
+    // Dodavanje običnog novčanika
     public WalletDto createWallet(Wallet wallet, Long userId, String currencyCode) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
@@ -50,28 +66,28 @@ public class WalletService {
         return convertToDto(saved);
     }
 
-    // 2.1 Funkcionalnost: Pregled stanja po novčaniku (aktivni novčanici)
+    // Pregled aktivnih novčanika korisnika
     public List<WalletDto> getUserWallets(Long userId) {
         return walletRepository.findByUserIdAndArchivedFalse(userId)
                 .stream().map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    // 2.1 Funkcionalnost: Pregled arhiviranih novčanika
+    // Pregled arhiviranih novčanika
     public List<WalletDto> getArchivedUserWallets(Long userId) {
         return walletRepository.findByUserIdAndArchivedTrue(userId)
                 .stream().map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    // 2.1 Funkcionalnost: Pronađi novčanik po ID
+    // Pronađi novčanik po ID
     public WalletDto findById(Long walletId, Long userId) {
         Wallet wallet = walletRepository.findByIdAndUserId(walletId, userId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
         return convertToDto(wallet);
     }
 
-    // 2.1 Funkcionalnost: Uređivanje novčanika
+    // Uređivanje novčanika
     public WalletDto updateWallet(Long walletId, Wallet updatedWallet) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -82,7 +98,7 @@ public class WalletService {
         return convertToDto(walletRepository.save(wallet));
     }
 
-    // 2.1 Funkcionalnost: Arhiviranje neaktivnih novčanika
+    // Arhiviranje novčanika
     public void archiveWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -90,7 +106,7 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    // 2.1 Funkcionalnost: Aktiviranje novčanika (vraćanje iz arhive)
+    // Aktiviranje novčanika
     public void activateWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -98,20 +114,20 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    // 2.1 Funkcionalnost: Brisanje novčanika
+    // Brisanje novčanika
     public void deleteWallet(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
         walletRepository.delete(wallet);
     }
 
-    // 2.1 Funkcionalnost: U statistici i dashboard prikaz ukupnog stanja korisnika
+    // Ukupno stanje korisnika
     public BigDecimal getTotalUserBalance(Long userId) {
         BigDecimal total = walletRepository.getTotalBalanceByUserId(userId);
         return total != null ? total : BigDecimal.ZERO;
     }
 
-    // 2.1 Funkcionalnost: Prikaz pojedinačnog stanja novčanika (za dashboard)
+    // Stanje pojedinačnog novčanika
     public BigDecimal getWalletBalance(Long walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
@@ -140,3 +156,4 @@ public class WalletService {
         return dto;
     }
 }
+
