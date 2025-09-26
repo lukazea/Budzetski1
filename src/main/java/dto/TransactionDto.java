@@ -4,20 +4,22 @@ import entity.Transaction;
 import entity.CategoryType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TransactionDto {
     private Long id;
-    private String name;
+    private String name;                // ili description
     private BigDecimal amount;
     private CategoryType type;
     private Long categoryId;
     private String categoryName;
-    private LocalDate transactionDate;
+    private LocalDate transactionDate;  // date
     private Long walletId;
     private String walletName;
     private Long userId;
     private String userName;
     private String currencyCode;
+    private Long currencyId;
 
     // Za transfer između novčanika
     private Long fromWalletId;
@@ -30,6 +32,10 @@ public class TransactionDto {
     // Za recurring template
     private Long recurringTemplateId;
 
+    // TIMESTAMP POLJA - POTREBNO ZA DASHBOARD
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
     // ----- KONSTRUKTORI -----
     public TransactionDto() {}
 
@@ -39,44 +45,46 @@ public class TransactionDto {
         this.amount = transaction.getAmount();
         this.name = transaction.getName();
         this.transactionDate = transaction.getTransactionDate();
-        this.categoryName = transaction.getCategory() != null ? transaction.getCategory().getName() : null;
-        this.walletName = transaction.getWallet() != null ? transaction.getWallet().getName() : null;
-        this.userName = transaction.getWallet() != null && transaction.getWallet().getUser() != null ?
-                transaction.getWallet().getUser().getUserName() : null;
+        this.createdAt = transaction.getCreatedAt();
+        this.updatedAt = transaction.getUpdatedAt();
 
-        if (transaction.getWallet() != null && transaction.getWallet().getCurrencies() != null
-            && !transaction.getWallet().getCurrencies().isEmpty()) {
-            this.currencyCode = transaction.getWallet().getCurrencies().iterator().next().getCurrency();
-        } else {
-            this.currencyCode = null;
+        // CATEGORY INFO
+        if (transaction.getCategory() != null) {
+            this.categoryName = transaction.getCategory().getName();
+            this.categoryId = transaction.getCategory().getId();
         }
-    }
 
-    // Konstruktor za običnu transakciju
-    public TransactionDto(String name, BigDecimal amount, CategoryType type,
-                          Long categoryId, LocalDate transactionDate, Long walletId, Long userId) {
-        this.name = name;
-        this.amount = amount;
-        this.type = type;
-        this.categoryId = categoryId;
-        this.transactionDate = transactionDate;
-        this.walletId = walletId;
-        this.userId = userId;
-        this.isTransfer = false;
-    }
+        // USER INFO
+        if (transaction.getUser() != null) {
+            this.userName = transaction.getUser().getUserName();
+            this.userId = transaction.getUser().getId();
+        }
 
-    // Konstruktor za transfer
-    public TransactionDto(String name, Long fromWalletId, Long toWalletId,
-                          BigDecimal fromAmount, BigDecimal toAmount,
-                          LocalDate transactionDate, Long userId) {
-        this.name = name;
-        this.fromWalletId = fromWalletId;
-        this.toWalletId = toWalletId;
-        this.fromAmount = fromAmount;
-        this.toAmount = toAmount;
-        this.transactionDate = transactionDate;
-        this.userId = userId;
-        this.isTransfer = true;
+        // WALLET INFO
+        if (transaction.getWallet() != null) {
+            this.walletName = transaction.getWallet().getName();
+            this.walletId = transaction.getWallet().getId();
+
+            if (transaction.getWallet().getCurrencies() != null &&
+                !transaction.getWallet().getCurrencies().isEmpty()) {
+                this.currencyCode = transaction.getWallet().getCurrencies().iterator().next().getCurrency();
+            }
+        }
+
+        // Transfer info
+        if (transaction.isTransfer()) {
+            this.fromWalletId = transaction.getFromWallet() != null ? transaction.getFromWallet().getId() : null;
+            this.toWalletId = transaction.getToWallet() != null ? transaction.getToWallet().getId() : null;
+            this.fromAmount = transaction.getFromAmount();
+            this.toAmount = transaction.getToAmount();
+            this.exchangeRate = transaction.getExchangeRate();
+            this.isTransfer = true;
+        }
+
+        // Recurring template
+        if (transaction.getRecurringTemplate() != null) {
+            this.recurringTemplateId = transaction.getRecurringTemplate().getId();
+        }
     }
 
     // ----- GETTERI I SETTERI -----
@@ -116,6 +124,9 @@ public class TransactionDto {
     public String getCurrencyCode() { return currencyCode; }
     public void setCurrencyCode(String currencyCode) { this.currencyCode = currencyCode; }
 
+    public Long getCurrencyId() { return currencyId; }
+    public void setCurrencyId(Long currencyId) { this.currencyId = currencyId; }
+
     public Long getFromWalletId() { return fromWalletId; }
     public void setFromWalletId(Long fromWalletId) { this.fromWalletId = fromWalletId; }
 
@@ -136,5 +147,20 @@ public class TransactionDto {
 
     public Long getRecurringTemplateId() { return recurringTemplateId; }
     public void setRecurringTemplateId(Long recurringTemplateId) { this.recurringTemplateId = recurringTemplateId; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    // Dodatni helper metode za formatiranje
+    public String getFormattedAmount() {
+        return amount != null ? amount.toString() : "0.00";
+    }
+
+    public String getFormattedAmountWithCurrency() {
+        return amount != null && currencyCode != null ? amount.toString() + " " + currencyCode : "0.00";
+    }
 }
 

@@ -5,34 +5,39 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Osnovne metode za pronalaženje korisnika
+    // ----- Osnovne metode -----
     Optional<User> findByUserName(String userName);
     Optional<User> findByEmail(String email);
-
-    // Proveri da li postoji korisnik sa datim korisničkim imenom
     boolean existsByUserName(String userName);
-
-    // Proveri da li postoji korisnik sa datom email adresom
     boolean existsByEmail(String email);
 
-    // Proveri da li postoji korisnik sa datim korisničkim imenom osim određenog ID-a
+    // Provera postojanja korisnika osim određenog ID-a
     @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.userName = :userName AND u.id != :userId")
     boolean existsByUserNameAndIdNot(@Param("userName") String userName, @Param("userId") Long userId);
 
-    // Proveri da li postoji korisnik sa datom email adresom osim određenog ID-a
     @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.email = :email AND u.id != :userId")
     boolean existsByEmailAndIdNot(@Param("email") String email, @Param("userId") Long userId);
 
-    // Pronađi korisnika koji nije blokiran
+    // Provera blokiranih korisnika
     Optional<User> findByIdAndBlockedFalse(Long id);
-
-    // Proveri da li je korisnik blokiran
     boolean existsByIdAndBlockedTrue(Long id);
 
-    // Broj registrovanih korisnika (može se koristiti ugrađena count() metoda iz JpaRepository)
+    // ----- Aktivnost korisnika (Dashboard) -----
+    // Broj aktivnih korisnika sa transakcijama u poslednjih X dana
+    @Query("SELECT COUNT(DISTINCT u.id) FROM User u " +
+           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = u.id AND t.date >= :since)")
+    Long countActiveUsersSince(@Param("since") LocalDate since);
+
+    // Broj aktivnih korisnika po transakcijama ili wallet operacijama
+    @Query("SELECT COUNT(DISTINCT u.id) FROM User u " +
+           "WHERE EXISTS (SELECT 1 FROM Transaction t WHERE t.user.id = u.id AND t.date >= :since) " +
+           "OR EXISTS (SELECT 1 FROM Wallet w WHERE w.user.id = u.id AND w.lastActivity >= :since)")
+    Long countActiveUsersWithWalletActivity(@Param("since") LocalDate since);
 }
