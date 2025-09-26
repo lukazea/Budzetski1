@@ -6,9 +6,10 @@ import service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/wallets")
@@ -18,7 +19,7 @@ public class WalletController {
     @Autowired
     private WalletService walletService;
 
-
+    // --- KREIRANJE NOVČANIKA ---
     @PostMapping("/user/{userId}")
     public ResponseEntity<WalletDto> createWallet(
             @PathVariable Long userId,
@@ -37,7 +38,7 @@ public class WalletController {
         }
     }
 
-
+    // --- SVI NOVČANICI KORISNIKA ---
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<WalletDto>> getUserWallets(@PathVariable Long userId) {
         try {
@@ -51,7 +52,7 @@ public class WalletController {
         }
     }
 
-
+    // --- ARHIVIRANI NOVČANICI ---
     @GetMapping("/user/{userId}/archived")
     public ResponseEntity<List<WalletDto>> getArchivedWallets(@PathVariable Long userId) {
         try {
@@ -65,7 +66,21 @@ public class WalletController {
         }
     }
 
+    // --- AKTIVNI NOVČANICI ---
+    @GetMapping("/user/{userId}/active")
+    public ResponseEntity<List<WalletDto>> getActiveUserWallets(@PathVariable Long userId) {
+        try {
+            List<Wallet> wallets = walletService.getActiveUserWallets(userId);
+            List<WalletDto> walletDtos = wallets.stream()
+                    .map(WalletDto::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(walletDtos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
+    // --- JEDAN NOVČANIK PO ID ---
     @GetMapping("/{walletId}")
     public ResponseEntity<WalletDto> getWalletById(@PathVariable Long walletId) {
         return walletService.findById(walletId)
@@ -73,7 +88,7 @@ public class WalletController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
+    // --- IZMENA NOVČANIKA ---
     @PutMapping("/{walletId}")
     public ResponseEntity<WalletDto> updateWallet(
             @PathVariable Long walletId,
@@ -90,7 +105,7 @@ public class WalletController {
         }
     }
 
-
+    // --- ARHIVIRANJE ---
     @PutMapping("/{walletId}/archive")
     public ResponseEntity<Void> archiveWallet(@PathVariable Long walletId) {
         try {
@@ -101,7 +116,7 @@ public class WalletController {
         }
     }
 
-
+    // --- AKTIVACIJA ---
     @PutMapping("/{walletId}/activate")
     public ResponseEntity<Void> activateWallet(@PathVariable Long walletId) {
         try {
@@ -112,7 +127,7 @@ public class WalletController {
         }
     }
 
-
+    // --- BRISANJE ---
     @DeleteMapping("/{walletId}")
     public ResponseEntity<Void> deleteWallet(@PathVariable Long walletId) {
         try {
@@ -123,7 +138,7 @@ public class WalletController {
         }
     }
 
-
+    // --- UKUPAN BALANS KORISNIKA ---
     @GetMapping("/user/{userId}/total-balance")
     public ResponseEntity<BigDecimal> getTotalUserBalance(@PathVariable Long userId) {
         try {
@@ -134,7 +149,7 @@ public class WalletController {
         }
     }
 
-
+    // --- BALANS PO NOVČANIKU ---
     @GetMapping("/{walletId}/balance")
     public ResponseEntity<BigDecimal> getWalletBalance(@PathVariable Long walletId) {
         try {

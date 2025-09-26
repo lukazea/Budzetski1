@@ -40,7 +40,6 @@ public class WalletDto {
                     .map(currency -> currency.getCurrency())
                     .collect(Collectors.toSet());
         }
-
     }
 
     // Getteri i setteri

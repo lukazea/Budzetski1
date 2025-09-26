@@ -8,6 +8,9 @@ import java.util.Optional;
 @Repository
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
 
-    // Za pronalaženje valute po nazivu (kod valute)
+    // Pronađi valutu po nazivu
     Optional<Currency> findByCurrency(String currency);
+
+    // Proveri da li valuta postoji
+    boolean existsByCurrency(String currency);
 }
