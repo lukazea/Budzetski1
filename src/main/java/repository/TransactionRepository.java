@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -17,17 +18,7 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    // ----- Metode iz admin_korisnici -----
-    @Query("SELECT t FROM Transaction t ORDER BY t.transactionDate DESC")
-    Page<Transaction> findAllOrderByTransactionDateDesc(Pageable pageable);
-
-    @Query("SELECT t FROM Transaction t WHERE t.wallet.user.id = :userId ORDER BY t.transactionDate DESC")
-    Page<Transaction> findByUserIdOrderByTransactionDateDesc(@Param("userId") Long userId, Pageable pageable);
-
-    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.wallet.user.id = :userId")
-    Long countByUserId(@Param("userId") Long userId);
-
-    // ----- Metode iz main -----
+    // ----- Opšte metode -----
     List<Transaction> findByUserId(Long userId);
 
     List<Transaction> findByWalletId(Long walletId);
@@ -97,4 +88,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     boolean existsByIdAndUserId(Long id, Long userId);
 
     void deleteByIdAndUserId(Long id, Long userId);
+
+    // ----- Admin filtrirane metode -----
+    @Query("SELECT t FROM Transaction t WHERE " +
+           "(:userId IS NULL OR t.user.id = :userId) AND " +
+           "(:categoryId IS NULL OR t.category.id = :categoryId) AND " +
+           "(:minAmount IS NULL OR t.amount >= :minAmount) AND " +
+           "(:maxAmount IS NULL OR t.amount <= :maxAmount) AND " +
+           "(:startDate IS NULL OR t.transactionDate >= :startDate) AND " +
+           "(:endDate IS NULL OR t.transactionDate <= :endDate)")
+    Page<Transaction> findFilteredTransactions(
+        @Param("userId") Long userId,
+        @Param("categoryId") Long categoryId,
+        @Param("minAmount") BigDecimal minAmount,
+        @Param("maxAmount") BigDecimal maxAmount,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        Pageable pageable
+    );
 }

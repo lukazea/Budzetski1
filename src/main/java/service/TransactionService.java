@@ -14,6 +14,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,17 +36,43 @@ public class TransactionService {
     @Autowired
     private CurrencyRepository currencyRepository;
 
-    // ----- Admin funkcionalnosti -----
+    // ----- Opšte metode -----
     public Page<Transaction> getAllTransactions(Pageable pageable) {
-        return transactionRepository.findAllOrderByTransactionDateDesc(pageable);
+        return transactionRepository.findAll(pageable);
+    }
+
+    public List<Transaction> getAllTransactionsList() {
+        return transactionRepository.findAll();
+    }
+
+    public Optional<Transaction> getTransactionById(Long id) {
+        return transactionRepository.findById(id);
+    }
+
+    public long countTransactionsByUser(Long userId) {
+        return transactionRepository.countByUserId(userId);
     }
 
     public Page<Transaction> getTransactionsByUser(Long userId, Pageable pageable) {
-        return transactionRepository.findByUserIdOrderByTransactionDateDesc(userId, pageable);
+        return transactionRepository.findByUserId(userId, pageable);
     }
 
-    public Long countTransactionsByUser(Long userId) {
-        return transactionRepository.countByUserId(userId);
+    public Page<Transaction> getTransactionsByCategory(Long categoryId, Pageable pageable) {
+        return transactionRepository.findByCategoryId(categoryId, pageable);
+    }
+
+    public Page<Transaction> getTransactionsByAmountRange(BigDecimal minAmount, BigDecimal maxAmount, Pageable pageable) {
+        return transactionRepository.findByAmountBetween(minAmount, maxAmount, pageable);
+    }
+
+    public Page<Transaction> getTransactionsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return transactionRepository.findByDateBetween(startDate, endDate, pageable);
+    }
+
+    public Page<Transaction> getFilteredTransactions(Long userId, Long categoryId, BigDecimal minAmount,
+                                                     BigDecimal maxAmount, LocalDate startDate,
+                                                     LocalDate endDate, Pageable pageable) {
+        return transactionRepository.findFilteredTransactions(userId, categoryId, minAmount, maxAmount, startDate, endDate, pageable);
     }
 
     // ----- Kreiranje obične transakcije -----
@@ -94,13 +121,12 @@ public class TransactionService {
             throw new RuntimeException("Nedovoljno sredstava u izvornom novčaniku");
         }
 
-        BigDecimal toAmount = dto.getToAmount();
+        BigDecimal toAmount;
         BigDecimal exchangeRate = BigDecimal.ONE;
 
         if (!haveSameCurrency(fromWallet, toWallet)) {
             exchangeRate = calculateExchangeRate(fromWallet, toWallet);
-            toAmount = dto.getFromAmount().multiply(exchangeRate)
-                    .setScale(2, RoundingMode.HALF_UP);
+            toAmount = dto.getFromAmount().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
         } else {
             toAmount = dto.getFromAmount();
         }
@@ -128,7 +154,7 @@ public class TransactionService {
         return convertToDto(transaction);
     }
 
-    // ----- Pregled transakcija -----
+    // ----- Pregled i filtriranje -----
     public List<TransactionDto> getUserTransactions(Long userId) {
         return transactionRepository.findByUserId(userId).stream()
                 .map(this::convertToDto)
@@ -144,7 +170,6 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    // ----- Pregled po periodima -----
     public List<TransactionDto> getDailyTransactions(Long userId, LocalDate date) {
         return transactionRepository.findDailyTransactions(userId, date).stream()
                 .map(this::convertToDto)
