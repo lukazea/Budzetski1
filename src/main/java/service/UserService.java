@@ -4,15 +4,18 @@ import entity.User;
 import repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    // --- Upravljanje korisnicima ---
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -21,7 +24,7 @@ public class UserService {
     public void blockUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Korisnik sa ID " + userId + " ne postoji"));
-        user.setBlocked(true);  // polje blocked u User entitetu
+        user.setBlocked(true);
         userRepository.save(user);
     }
 
@@ -45,5 +48,11 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Korisnik sa ID " + userId + " ne postoji"));
         userRepository.delete(user);
+    }
+
+    // --- Prva funkcionalnost: broj ukupnih registrovanih korisnika ---
+
+    public long getTotalUserCount() {
+        return userRepository.count();
     }
 }

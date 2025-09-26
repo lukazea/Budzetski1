@@ -38,6 +38,7 @@ public class UserController {
     @Autowired
     private UserNoteService userNoteService;
 
+    // ----- ADMIN ENDPOINTI -----
     @GetMapping("/admin/all")
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -107,18 +108,14 @@ public class UserController {
     public ResponseEntity<UserNoteDto> createUserNote(
             @RequestBody CreateUserNoteDto createDto) {
         try {
-            // ----- RUČNA VALIDACIJA -----
             if (createDto.getUserId() == null) {
                 return ResponseEntity.badRequest().body(null);
             }
             if (createDto.getNote() == null || createDto.getNote().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body(null);
             }
-            // ----------------------------
 
-            // TODO: Uzeti admin username iz SecurityContext-a
             String adminUsername = "admin"; // Privremeno hardkodovano
-
             UserNote note = userNoteService.createNote(createDto, adminUsername);
             return ResponseEntity.status(HttpStatus.CREATED).body(new UserNoteDto(note));
         } catch (RuntimeException e) {
@@ -136,7 +133,6 @@ public class UserController {
             }
 
             String adminUsername = "admin"; // Privremeno hardkodovano
-
             UserNote note = userNoteService.updateNote(noteId, newNote, adminUsername);
             return ResponseEntity.ok(new UserNoteDto(note));
         } catch (RuntimeException e) {
@@ -172,5 +168,14 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    // ----- JAVNI ENDPOINT -----
+    @GetMapping("/public/count")
+    public ResponseEntity<UserDto> getTotalUserCount() {
+        long totalUsers = userService.getTotalUserCount();
+        UserDto response = new UserDto();
+        response.setTotalUserCount(totalUsers);
+        return ResponseEntity.ok(response);
     }
 }

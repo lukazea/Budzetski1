@@ -4,11 +4,16 @@ import entity.User;
 
 public class UserDto {
 
+    // Polja iz admin_korisnici
     private Long id;
     private String userName;
     private String email;
-    private boolean blocked;  // polje koje koristimo za blokiranje
+    private boolean blocked;
 
+    // Polje iz main
+    private long totalUserCount;
+
+    // ----- KONSTRUKTORI -----
     public UserDto() {}
 
     // Konstruktor koji prihvata entitet User
@@ -19,7 +24,7 @@ public class UserDto {
         this.blocked = user.isBlocked();
     }
 
-    // Getteri i setteri
+    // ----- GETTERI I SETTERI -----
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -31,4 +36,7 @@ public class UserDto {
 
     public boolean isBlocked() { return blocked; }
     public void setBlocked(boolean blocked) { this.blocked = blocked; }
+
+    public long getTotalUserCount() { return totalUserCount; }
+    public void setTotalUserCount(long totalUserCount) { this.totalUserCount = totalUserCount; }
 }
