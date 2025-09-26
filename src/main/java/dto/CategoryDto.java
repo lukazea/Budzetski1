@@ -20,7 +20,6 @@ public class CategoryDto {
         this.name = category.getName();
         this.type = category.getType();
         this.predefined = category.isPredefined();
-
         if (category.getUser() != null) {
             this.userId = category.getUser().getId();
             this.userName = category.getUser().getUserName();
