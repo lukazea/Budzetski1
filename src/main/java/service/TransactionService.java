@@ -75,7 +75,7 @@ public class TransactionService {
     }
 
     public Page<Transaction> getTransactionsByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return transactionRepository.findByDateBetween(startDate, endDate, pageable);
+        return transactionRepository.findByTransactionDateBetween(startDate, endDate, pageable);
     }
 
     public Page<Transaction> getFilteredTransactions(Long userId, Long categoryId, BigDecimal minAmount,

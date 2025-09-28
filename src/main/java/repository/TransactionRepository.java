@@ -62,7 +62,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Page<Transaction> findByUserId(Long userId, Pageable pageable);
     Page<Transaction> findByWalletId(Long walletId, Pageable pageable);
     Page<Transaction> findByUserIdAndTransactionDateBetween(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Page<Transaction> findByUserIdOrderByDate(@Param("userId") Long userId, Pageable pageable);
+    Page<Transaction> findByUserIdOrderByTransactionDate(@Param("userId") Long userId, Pageable pageable);
 
     // ----- Daily/Weekly/Monthly/Quarterly -----
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.transactionDate = :date")
@@ -99,7 +99,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     // ----- Dashboard / statistike -----
     Page<Transaction> findByCategoryId(Long categoryId, Pageable pageable);
     Page<Transaction> findByAmountBetween(BigDecimal minAmount, BigDecimal maxAmount, Pageable pageable);
-    Page<Transaction> findByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<Transaction> findByTransactionDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     @Query("SELECT t FROM Transaction t WHERE t.transactionDate >= :since ORDER BY t.amount DESC")
     List<Transaction> findTopTransactionsSince(@Param("since") LocalDate since, Pageable pageable);
