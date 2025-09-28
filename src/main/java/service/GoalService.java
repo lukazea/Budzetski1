@@ -64,7 +64,7 @@ public class GoalService {
             }
 
             // Pronađi default valutu (primer: RSD)
-            Currency defaultCurrency = currencyRepository.findByCode("RSD")
+            Currency defaultCurrency = currencyRepository.findByCurrency("RSD")
                 .orElse(currencyRepository.findAll().get(0));
 
             wallet = walletService.createSavingsWallet(user, name.trim(), defaultCurrency);

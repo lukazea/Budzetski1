@@ -11,11 +11,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @ComponentScan(basePackages = {
 	    "ac.rs.uns.ftn.Budzetski.Stedisa", 
+	    "ac.rs.uns.ftn.Budzetski.Stedisa.config", 
 	    "controller",                        
 	    "service",                          
 	    "repository",                        
 	    "dto",
-	    "entity"
+	    "entity",
+		"utils"
 })
 @EnableJpaRepositories(basePackages = {"repository"}) 
 @EntityScan(basePackages = {"entity"})              

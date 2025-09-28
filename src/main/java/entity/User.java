@@ -3,191 +3,140 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 @Entity
 @Table(name = "USERS")
-public class User implements Serializable {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;	//Long je wrapper klasa (objektni tip) koja može biti i null
-	
-	public enum Role {
-		USER,
-		ADMIN
-	}
+public class User implements UserDetails {
 
-	/*Korisnik 
-	● Ime 
-	● Prezime 
-	● Korisničko ime (jedinstveno) 
-	● Mejl adresa (jedinstvena) 
-	● Lozinka (heširana) 
-	● Datum rođenja 
-	● Uloga (Korisnik, Administrator) 
-	● Profilna slika (putanja do slike) 
-	● Valuta (RSD, EUR, USD...) 
-	● Datum registracije 
-	● Blokiran (boolean) */
-	
-	//pravim kolonu u tabeli, za sve ocu da imaju ime, da li vrednost moze biti NULL (nullable), i da li vrednost mora biti jedinstvena (unique)
-	@Column(name = "first_name", nullable = false)
-		private String firstName;
-	
-	@Column(name = "last_name", nullable = false)
-		private String lastName;
-	
-	@Column(name = "user_name", nullable = false, unique = true)
-		private String userName;
-	
-	@Column(name = "email", nullable = false, unique = true)
-		private String email;
-	
-	@Column(name = "password", nullable = false)
-		private String password;	//u service radi hesh
-	
-	@Column(name = "birth_date", nullable = false)
-		private LocalDate birthdate;
-	
-	@Enumerated(EnumType.STRING)
-	@Column(name = "role", nullable = false)
-		private Role role;
-	
-	@Column(name = "profile_pic", nullable = true)
-		private String profilePicPath;
-	
-	@Column(name = "currency", nullable = false)
-		private String currency;
-	
-	@Column(name = "registration_date", nullable = false)
-		private LocalDate registrationdate;
-	
-	@Column(name = "blocked", nullable = false)
-		private boolean blocked;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // Long je wrapper klasa (objektni tip) koja može biti i null
 
-	public Long getId() {
-		return id;
-	}
+    public enum Role {
+        USER,
+        ADMIN
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
-	public String getFirstName() {
-		return firstName;
-	}
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    @Column(name = "user_name", nullable = false, unique = true)
+    private String userName;
 
-	public String getLastName() {
-		return lastName;
-	}
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    @Column(name = "password", nullable = false)
+    private String password; // u service radi hesh
 
-	public String getUserName() {
-		return userName;
-	}
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthdate;
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
-	public String getEmail() {
-		return email;
-	}
+    @Column(name = "profile_pic", nullable = true)
+    private String profilePicPath;
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    @Column(name = "currency", nullable = false)
+    private String currency;
 
-	public String getPassword() {
-		return password;
-	}
+    @Column(name = "registration_date", nullable = false)
+    private LocalDate registrationdate;
 
-	public  void setPassword(String password) {this.password = password;}
+    @Column(name = "blocked", nullable = false)
+    private boolean blocked;
 
-	public LocalDate getBirth_date() {
-		return birthdate;
-	}
+    // --- Relacije ---
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Category> categories = new HashSet<>();
 
-	public void setBirth_date(LocalDate birth_date) {
-		this.birthdate = birth_date;
-	}
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Transaction> transactions = new HashSet<>();
 
-	public Role getRole() {
-		return role;
-	}
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Wallet> wallets = new HashSet<>();
 
-	public void setRole(Role role) {
-		this.role = role;
-	}
+    // --- Getteri/Setteri ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-	public String getProfilePicPath() {
-		return profilePicPath;
-	}
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-	public void setProfilePicPath(String profilePicPath) {
-		this.profilePicPath = profilePicPath;
-	}
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-	public String getCurrency() {
-		return currency;
-	}
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-	public LocalDate getRegistartion_date() {
-		return registrationdate;
-	}
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-	public void setRegistartion_date(LocalDate registartion_date) {
-		this.registrationdate = registartion_date;
-	}
+    public LocalDate getBirth_date() { return birthdate; }
+    public void setBirth_date(LocalDate birth_date) { this.birthdate = birth_date; }
 
-	public boolean isBlocked() {
-		return blocked;
-	}
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
-	public void setBlocked(boolean blocked) {
-		this.blocked = blocked;
-	}
-	
-	/* Korisnik moze da ima vise novcanika.
-	 * Prva veza je u Klasi User. Druga u Wallet.
-	 * Posto User moze imati vise novcanika - OneToMany. U Wallet - ManyToOne.
-	 * FetchType=LAZY-tek kad eksplicitno trazimo 
-	 * CascadeType.ALL-izmena usera = izmena walleta
-	 * Treba mi i pored konekcije: get(vraca kolekciju) i set(postavlja kolekciju)
-	 */
+    public String getProfilePicPath() { return profilePicPath; }
+    public void setProfilePicPath(String profilePicPath) { this.profilePicPath = profilePicPath; }
 
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private Set<Category> categories = new HashSet<>();
+    public String getCurrency() { return currency; }
+    public void setCurrency(String currency) { this.currency = currency; }
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<Transaction> transactions = new HashSet<>();
+    public LocalDate getRegistartion_date() { return registrationdate; }
+    public void setRegistartion_date(LocalDate registartion_date) { this.registrationdate = registartion_date; }
 
+    public boolean isBlocked() { return blocked; }
+    public void setBlocked(boolean blocked) { this.blocked = blocked; }
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	private Set<Wallet> wallets = new HashSet<>();
-	public Set<Wallet> getWallets() {
-		return wallets;
-	}
-	public void setWallets(Set<Wallet> wallets) {
-		this.wallets = wallets;
-	}
+    public Set<Wallet> getWallets() { return wallets; }
+    public void setWallets(Set<Wallet> wallets) { this.wallets = wallets; }
 
+    // --- UserDetails implementacija ---
+
+    @Override
+    public String getUsername() { // mapira se na userName kolonu
+        return this.userName;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return !this.blocked; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return !this.blocked; }
+
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", userName=" + userName
+                + ", email=" + email + ", password=" + password + ", birthdate=" + birthdate + ", role=" + role
+                + ", profilePicPath=" + profilePicPath + ", currency=" + currency + ", registrationdate="
+                + registrationdate + ", blocked=" + blocked + ", wallets=" + wallets + "]";
+    }
 	@Override
-	public String toString() {
-		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", userName=" + userName
-				+ ", email=" + email + ", password=" + password + ", birthdate=" + birthdate + ", role=" + role
-				+ ", profilePicPath=" + profilePicPath + ", currency=" + currency + ", registrationdate="
-				+ registrationdate + ", blocked=" + blocked + ", wallets=" + wallets + "]";
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of(new SimpleGrantedAuthority("ROLE_" + (role != null ? role.name() : "USER")));
 	}
 }

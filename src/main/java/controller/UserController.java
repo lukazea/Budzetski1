@@ -239,10 +239,8 @@ public class UserController {
 
     // ----- JAVNI ENDPOINT -----
     @GetMapping("/public/count")
-    public ResponseEntity<UserDto> getTotalUserCount() {
+    public ResponseEntity<Long> getTotalUserCount() {
         long totalUsers = userService.getTotalUserCount();
-        UserDto response = new UserDto();
-        response.setTotalUserCount(totalUsers);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(totalUsers);
     }
 }
