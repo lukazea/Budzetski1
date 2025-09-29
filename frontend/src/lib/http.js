@@ -10,7 +10,7 @@ http.interceptors.response.use(
   (err) => {
     err.message ||= "Network error";
     return Promise.reject(err);
-  }
+  },
 );
 
 http.interceptors.request.use((config) => {

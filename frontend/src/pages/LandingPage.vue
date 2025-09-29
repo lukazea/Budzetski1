@@ -1,8 +1,12 @@
 <template>
   <div class="landing-page">
     <div class="hero">
-      <h1 class="title">Budget.ly</h1>
-      <p class="subtitle">Track your income, expenses, and savings goals</p>
+      <h1 class="title">
+        Budget.ly
+      </h1>
+      <p class="subtitle">
+        Track your income, expenses, and savings goals
+      </p>
 
       <div class="user-count">
         <p>Total Users</p>
