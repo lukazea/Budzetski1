@@ -9,8 +9,3 @@ export async function getPublicUserCount() {
   const { data } = await http.get("/users/public/count");
   return data;
 }
-
-export async function createUser(payload) {
-  const { data } = await http.post("/users", payload);
-  return data;
-}

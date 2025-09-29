@@ -7,9 +7,7 @@
       <div class="user-count">
         <p>Total Users</p>
         <span class="count">
-          <template v-if="fetchUserCount.loading.value">Loading...</template>
-          <template v-else-if="users">{{ users }}</template>
-          <template v-else>0</template>
+          {{ userCount ?? 0 }}
         </span>
       </div>
     </div>
@@ -21,11 +19,9 @@
 import { onMounted } from "vue";
 import { useUsers } from "@/composables/useUsers";
 
-const { users, fetchUserCount } = useUsers();
+const { userCount, fetchUserCount } = useUsers();
 
-onMounted(() => {
-  fetchUserCount.run();
-});
+onMounted(fetchUserCount);
 </script>
 
 <style scoped>

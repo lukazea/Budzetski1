@@ -1,23 +1,16 @@
 import { ref } from "vue";
-import { createUser, getPublicUserCount } from "@/services/users";
-import { useAsync } from "@/composables/useAsync";
+import { getPublicUserCount } from "@/services/users";
 
 export function useUsers() {
-  const users = ref(null);
+  const userCount = ref(null);
 
-  const fetchUserCount = useAsync(async () => {
+  const fetchUserCount = async () => {
     const data = await getPublicUserCount();
-    users.value = data;
-  });
-
-  const addUser = useAsync(async (input) => {
-    const created = await createUser(input);
-    users.value = [...(users.value || []), created];
-  });
+    userCount.value = data;
+  };
 
   return {
-    users,
+    userCount: userCount,
     fetchUserCount: fetchUserCount,
-    addUser: addUser,
   };
 }
