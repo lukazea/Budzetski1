@@ -12,8 +12,9 @@ export async function login(body) {
   if (!token) throw new Error("Token not present in response.");
 
   localStorage.setItem("jwt", token);
+  localStorage.setItem("userId", data.id);
 
-  return token;
+  return data;
 }
 
 export function logout() {

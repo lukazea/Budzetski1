@@ -1,6 +1,7 @@
 package controller;
 
 import dto.WalletDto;
+import dto.WalletCreateDto;
 import entity.Wallet;
 import service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/wallets")
-@CrossOrigin(origins = "*")
+
 public class WalletController {
 
     @Autowired
@@ -24,18 +24,14 @@ public class WalletController {
     public ResponseEntity<WalletDto> createWallet(
             @PathVariable Long userId,
             @RequestParam String currencyCode,
-            @RequestBody WalletDto walletDto) {
-        try {
-            Wallet wallet = new Wallet();
-            wallet.setName(walletDto.getName());
-            wallet.setInitialBalance(walletDto.getInitialBalance());
-            wallet.setSavings(walletDto.isSavings());
+            @RequestBody WalletCreateDto walletDto) {
+        Wallet wallet = new Wallet();
+        wallet.setName(walletDto.getName());
+        wallet.setInitialBalance(walletDto.getInitialBalance());
+        wallet.setSavings(walletDto.isSavings());
 
-            WalletDto savedWallet = walletService.createWallet(wallet, userId, currencyCode);
-            return ResponseEntity.ok(savedWallet);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        WalletDto savedWallet = walletService.createWallet(wallet, userId, currencyCode);
+        return ResponseEntity.ok(savedWallet);
     }
 
     // --- SVI NOVČANICI KORISNIKA ---

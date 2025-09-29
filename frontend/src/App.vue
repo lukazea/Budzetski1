@@ -1,13 +1,23 @@
 <template>
   <div id="app">
     <nav>
-      <router-link to="/">Home</router-link>
-      <router-link v-if="!isAuthed" to="/login">Login</router-link>
-      <router-link v-if="!isAuthed" to="/register">Register</router-link>
-      <router-link v-if="isAuthed" to="/wallets">Wallets</router-link>
-      <button v-if="isAuthed" class="logout" @click="doLogout">Logout</button>
+      <router-link to="/">
+        Home
+      </router-link>
+      <router-link v-if="!isAuthed" to="/login">
+        Login
+      </router-link>
+      <router-link v-if="!isAuthed" to="/register">
+        Register
+      </router-link>
+      <router-link v-if="isAuthed" to="/wallets">
+        Wallets
+      </router-link>
+      <button v-if="isAuthed" class="logout" @click="doLogout">
+        Logout
+      </button>
     </nav>
-    <router-view></router-view>
+    <router-view />
   </div>
 </template>
 

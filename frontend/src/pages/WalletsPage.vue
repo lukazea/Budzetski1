@@ -1,6 +1,5 @@
 <template>
   <div class="wallets-page">
-    <!-- Header / Dashboard -->
     <section class="dash">
       <h1>Virtuelni novčanik</h1>
 
@@ -39,7 +38,6 @@
       </div>
     </section>
 
-    <!-- Kreiranje / Uređivanje -->
     <section class="editor">
       <h2>{{ editWallet?.id ? "Uredi novčanik" : "Novi novčanik" }}</h2>
       <form @submit.prevent="onSubmit">
@@ -85,7 +83,6 @@
       </form>
     </section>
 
-    <!-- Lista aktivnih novčanika -->
     <section class="list">
       <h2>Aktivni novčanici</h2>
       <table v-if="activeWallets.length">
@@ -131,7 +128,6 @@
       </p>
     </section>
 
-    <!-- Lista arhiviranih -->
     <section class="list secondary">
       <h2>Arhivirani novčanici</h2>
       <table v-if="archivedWallets.length">
@@ -171,7 +167,6 @@
       </p>
     </section>
 
-    <!-- Transakcije izabranog novčanika -->
     <section v-if="selectedWallet" class="tx">
       <h2>Transakcije — {{ selectedWallet.name }}</h2>
       <p class="muted">
@@ -218,9 +213,10 @@ import {
   activateWallet,
   getWalletTransactions,
 } from "@/services/wallets";
+import {useAuth} from "@/composables/useAuth";
 
-const userId = 1;
-
+const {userId} = useAuth();
+console.log("userId",userId.value);
 const currencies = ["RSD", "EUR", "USD"];
 
 const activeWallets = ref([]);
@@ -279,7 +275,6 @@ async function onSubmit() {
       name: form.name,
       initialBalance: form.initialBalance ?? 0,
       savings: form.savings,
-      currencies: [formCurrency.value],
     };
 
     if (editWallet.value?.id) {
@@ -288,7 +283,7 @@ async function onSubmit() {
       if (ix >= 0) activeWallets.value[ix] = updated;
       successMsg.value = "Izmene sačuvane.";
     } else {
-      const created = await createWallet(userId, formCurrency.value, payload);
+      const created = await createWallet(userId.value, formCurrency.value, payload);
       if (created.archived) archivedWallets.value.unshift(created);
       else activeWallets.value.unshift(created);
       successMsg.value = "Novčanik kreiran.";
@@ -348,8 +343,8 @@ function removeFromLists(id) {
 
 async function loadWallets() {
   const [active, archived] = await Promise.all([
-    getUserWallets(userId),
-    getArchivedWallets(userId),
+    getUserWallets(userId.value),
+    getArchivedWallets(userId.value),
   ]);
   activeWallets.value = active;
   archivedWallets.value = archived;
@@ -374,7 +369,7 @@ async function loadBalancesFor(list) {
 async function refreshTotals() {
   totalBalanceLoading.value = true;
   try {
-    totalBalance.value = await getTotalUserBalance(userId);
+    totalBalance.value = await getTotalUserBalance(userId.value);
   } finally {
     totalBalanceLoading.value = false;
   }
@@ -383,7 +378,7 @@ async function refreshTotals() {
 async function openTransactions(w) {
   if (!w.id) return;
   selectedWalletId.value = w.id;
-  transactions.value = await getWalletTransactions(w.id, userId);
+  transactions.value = await getWalletTransactions(w.id, userId.value);
 }
 
 function fmtMoney(n) {

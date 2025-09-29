@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/currencies")
-@CrossOrigin(origins = "*")
+
 public class CurrencyController {
 
     @Autowired

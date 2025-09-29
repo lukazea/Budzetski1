@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/recurring-templates")
-@CrossOrigin(origins = "*")
+
 public class RecurringTransactionTemplateController {
 
     @Autowired

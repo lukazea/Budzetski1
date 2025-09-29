@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserRepository userRepo;
@@ -54,7 +53,7 @@ public class AuthController {
         userRepo.save(u);
 
         String token = jwt.generateToken(u.getUserName(), Map.of("role", "ROLE_" + u.getRole().name(), "uid", u.getId()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token, u.getId()));
     }
 
     @PostMapping("/login")
@@ -68,6 +67,6 @@ public class AuthController {
                 user.getUserName(),
                 Map.of("role", "ROLE_" + user.getRole().name(), "uid", user.getId())
         );
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token, user.getId()));
     }
 }
