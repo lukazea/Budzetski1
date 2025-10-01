@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,8 +43,13 @@ public class TransactionController {
     @GetMapping("/admin/all")
     public ResponseEntity<Page<TransactionDto>> getAllTransactions(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection) {
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String validSortBy = validateSortBy(sortBy);
+        Sort sort = Sort.by(direction, validSortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<Transaction> transactions = transactionService.getAllTransactions(pageable);
         Page<TransactionDto> transactionDtos = transactions.map(TransactionDto::new);
         return ResponseEntity.ok(transactionDtos);
@@ -56,7 +64,7 @@ public class TransactionController {
             @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -77,7 +85,7 @@ public class TransactionController {
     @GetMapping("/admin/user/{userId}")
     public ResponseEntity<Page<TransactionDto>> getAdminTransactionsByUser(
             @PathVariable Long userId,
-            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -332,9 +340,12 @@ public class TransactionController {
     // Top transakcije
     @GetMapping("/top")
     public ResponseEntity<List<TransactionDto>> getTopTransactions(
-            @RequestParam LocalDate since,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime since,
             @RequestParam(defaultValue = "10") int limit) {
-        List<Transaction> transactions = transactionService.getTopTransactions(since, limit);
+        var sinceLdt = since.atZoneSameInstant(ZoneId.systemDefault())
+                        .toLocalDate();
+        List<Transaction> transactions = transactionService.getTopTransactions(sinceLdt, limit);
         return ResponseEntity.ok(
             transactions.stream().map(TransactionDto::new).collect(Collectors.toList())
         );
@@ -373,11 +384,11 @@ public class TransactionController {
     // Validacija sort parametra
     private String validateSortBy(String sortBy) {
         switch (sortBy.toLowerCase()) {
-            case "date": return "date";
+            case "createdAt": return "createdAt";
             case "amount":
             case "value": return "amount";
             case "description": return "description";
-            default: return "date";
+            default: return "createdAt";
         }
     }
 }

@@ -44,6 +44,18 @@ const routes = [
     meta: { requiresAdmin: true, requiresAuth: true },
   },
   {
+    path: "/admin-monitoring",
+    name: "AdminMonitoring",
+    component: () => import("@/pages/AdminMonitoringPage.vue"),
+    meta: { requiresAdmin: true, requiresAuth: true },
+  },
+  {
+    path: "/admin-dashboard",
+    name: "AdminDashboard",
+    component: () => import("@/pages/AdminDashboardPage.vue"),
+    meta: { requiresAdmin: true, requiresAuth: true },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: () => import("@/pages/NotFound.vue"),

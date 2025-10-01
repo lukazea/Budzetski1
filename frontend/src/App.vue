@@ -22,6 +22,12 @@
       <router-link v-if="isAuthed && isAdmin" to="/admin-currencies">
         Valute
       </router-link>
+      <router-link v-if="isAuthed && isAdmin" to="/admin-monitoring">
+        Monitoring
+      </router-link>
+      <router-link v-if="isAuthed && isAdmin" to="/admin-dashboard">
+        Dashboard
+      </router-link>
       <button v-if="isAuthed" class="logout" @click="doLogout">
         Logout
       </button>

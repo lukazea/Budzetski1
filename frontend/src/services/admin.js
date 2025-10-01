@@ -121,3 +121,67 @@ export async function convertBetweenCurrencies(amount, fromCode, toCode) {
   });
   return data;
 }
+
+export async function getAllCategories() {
+  const { data } = await http.get("/categories/admin/all");
+  return data ?? [];
+}
+
+export async function getAllTransactions({ page = 0, size = 20 } = {}) {
+  const { data } = await http.get("/transactions/admin/all", { params: { page, size } });
+  return data;
+}
+
+export async function getFilteredTransactions({
+  userId,
+  categoryId,
+  minAmount,
+  maxAmount,
+  startDate, // 'YYYY-MM-DD'
+  endDate,   // 'YYYY-MM-DD'
+  sortBy = "date",          // "date" | "amount" | "name" (tvoj API default je date)
+  sortDirection = "desc",   // "asc" | "desc"
+  page = 0,
+  size = 20,
+} = {}) {
+  const params = {
+    userId,
+    categoryId,
+    minAmount,
+    maxAmount,
+    startDate,
+    endDate,
+    sortBy,
+    sortDirection,
+    page,
+    size,
+  };
+  Object.keys(params).forEach((k) => params[k] == null && delete params[k]);
+
+  const { data } = await http.get("/transactions/admin/filtered", { params });
+  return data;
+}
+
+export async function getDashboardStats() {
+  const { data } = await http.get("/dashboard/admin/stats");
+  return data;
+}
+
+export async function getTopTransactionsSince(since, limit = 10) {
+  const { data } = await http.get("/transactions/top", {
+    params: { since, limit },
+  });
+  return data;
+}
+
+export function isoDateDaysAgo(days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString();
+}
+
+export function isoDateMinutesAgo(minutes) {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - minutes);
+  return d.toISOString();
+}
