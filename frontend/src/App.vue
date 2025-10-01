@@ -13,6 +13,9 @@
       <router-link v-if="isAuthed" to="/wallets">
         Wallets
       </router-link>
+      <router-link v-if="isAuthed && isAdmin" to="/admin">
+        Admin
+      </router-link>
       <button v-if="isAuthed" class="logout" @click="doLogout">
         Logout
       </button>
@@ -23,15 +26,14 @@
 
 <script setup>
 import { useAuth } from "@/composables/useAuth";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 
-const { isAuthed, logout } = useAuth();
+const { isAuthed, isAdmin, logout } = useAuth();
 const router = useRouter();
-const route = useRoute();
 
 function doLogout() {
   logout();
-  if (route.name === "Wallets") router.push({ name: "Home" });
+  router.push({ name: "Home" });
 }
 </script>
 

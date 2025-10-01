@@ -13,6 +13,7 @@ export async function login(body) {
 
   localStorage.setItem("jwt", token);
   localStorage.setItem("userId", data.id);
+  localStorage.setItem("role", data.role);
 
   return data;
 }
@@ -20,6 +21,7 @@ export async function login(body) {
 export function logout() {
   localStorage.removeItem("jwt");
   localStorage.removeItem("userId");
+  localStorage.removeItem("role");
 }
 
 export function isAuthenticated() {

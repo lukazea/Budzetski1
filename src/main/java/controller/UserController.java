@@ -148,6 +148,8 @@ public class UserController {
             @PathVariable Long userId,
             Pageable pageable) {
         try {
+            System.out.println("Herreee");
+            System.out.println(pageable.toString());
             Page<Transaction> transactions = transactionService.getTransactionsByUser(userId, pageable);
             return ResponseEntity.ok(transactions.map(TransactionDto::new));
         } catch (Exception e) {
