@@ -23,14 +23,14 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByUserAndPredefinedFalse(User user);
 
     // --- Kombinovano - predefinisane + korisničke ---
-    @Query("SELECT c FROM Category c WHERE c.predefined = true OR c.user.id = :userId")
+    @Query("SELECT c FROM Category c WHERE (c.predefined = true AND c.active = true) OR c.user.id = :userId")
     List<Category> findAvailableForUser(@Param("userId") Long userId);
 
     // --- Po tipu kategorije ---
     List<Category> findByType(CategoryType type);
     List<Category> findByTypeAndPredefinedTrue(CategoryType type);
 
-    @Query("SELECT c FROM Category c WHERE c.type = :type AND (c.predefined = true OR c.user.id = :userId)")
+    @Query("SELECT c FROM Category c WHERE c.type = :type AND ((c.predefined = true AND c.active = true) OR c.user.id = :userId)")
     List<Category> findByTypeAndAvailableForUser(@Param("type") CategoryType type, @Param("userId") Long userId);
 
     // --- Za admin - sve kategorije ---
@@ -57,7 +57,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     // --- Nova metoda: pretraga dostupnih kategorija po imenu (predefinisane + korisničke) ---
     @Query("SELECT c FROM Category c " +
-            "WHERE (c.predefined = true OR c.user.id = :userId) " +
+            "WHERE ((c.predefined = true AND c.active = true) OR c.user.id = :userId) " +
             "AND LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Category> findAvailableForUserByNameContaining(@Param("userId") Long userId,
                                                         @Param("searchTerm") String searchTerm);

@@ -10,6 +10,7 @@ public class CategoryDto {
     private boolean predefined;
     private Long userId;
     private String userName;
+    private Boolean active;
 
     // --- Konstruktor bez parametara ---
     public CategoryDto() {}
@@ -20,6 +21,7 @@ public class CategoryDto {
         this.name = category.getName();
         this.type = category.getType();
         this.predefined = category.isPredefined();
+        this.active = category.isActive();
         if (category.getUser() != null) {
             this.userId = category.getUser().getId();
             this.userName = category.getUser().getUserName();
@@ -52,4 +54,6 @@ public class CategoryDto {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+    
+    public Boolean getActive() {return active;}
 }

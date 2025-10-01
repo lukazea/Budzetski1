@@ -26,10 +26,23 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/admin",
-    name: "Admin",
-    component: () => import("@/pages/AdminPage.vue"),
-    meta: { requiresAdmin: true, requiresAuth: true } },
+    path: "/admin-users",
+    name: "AdminUsers",
+    component: () => import("@/pages/AdminUsersPage.vue"),
+    meta: { requiresAdmin: true, requiresAuth: true }
+  },
+  {
+    path: "/admin-categories",
+    name: "AdminCategories",
+    component: () => import("@/pages/AdminCategoriesPage.vue"),
+    meta: { requiresAdmin: true, requiresAuth: true },
+  },
+  {
+    path: "/admin-currencies",
+    name: "AdminCurrencies",
+    component: () => import("@/pages/AdminCurrenciesPage.vue"),
+    meta: { requiresAdmin: true, requiresAuth: true },
+  },
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",

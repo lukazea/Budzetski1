@@ -10,11 +10,17 @@
       <router-link v-if="!isAuthed" to="/register">
         Register
       </router-link>
-      <router-link v-if="isAuthed" to="/wallets">
+      <router-link v-if="isAuthed && !isAdmin" to="/wallets">
         Wallets
       </router-link>
-      <router-link v-if="isAuthed && isAdmin" to="/admin">
-        Admin
+      <router-link v-if="isAuthed && isAdmin" to="/admin-users">
+        Users
+      </router-link>
+      <router-link v-if="isAuthed && isAdmin" to="/admin-categories">
+        Kategorije
+      </router-link>
+      <router-link v-if="isAuthed && isAdmin" to="/admin-currencies">
+        Valute
       </router-link>
       <button v-if="isAuthed" class="logout" @click="doLogout">
         Logout

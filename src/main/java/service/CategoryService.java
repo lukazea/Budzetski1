@@ -141,6 +141,26 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
+    public Category activatePredefined(Long id) {
+        Category c = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena"));
+        if (!c.isPredefined()) {
+            throw new RuntimeException("Samo predefinisane kategorije mogu biti aktivirane.");
+        }
+        c.setActive(true);
+        return categoryRepository.save(c);
+    }
+    
+    public Category deactivatePredefined(Long id) {
+        Category c = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena"));
+        if (!c.isPredefined()) {
+            throw new RuntimeException("Samo predefinisane kategorije mogu biti deaktivirane.");
+        }
+        c.setActive(false);
+        return categoryRepository.save(c);
+    }
+
     // ==================== CATEGORY RETRIEVAL ====================
 
     // Sve dostupne kategorije za korisnika (predefinisane + korisničke)
@@ -210,12 +230,7 @@ public class CategoryService {
 
     // Konverzija u DTO
     private CategoryDto convertToDto(Category category) {
-        CategoryDto dto = new CategoryDto();
-        dto.setId(category.getId());
-        dto.setName(category.getName());
-        dto.setType(category.getType());
-        dto.setPredefined(category.isPredefined());
-        dto.setUserId(category.getUser() != null ? category.getUser().getId() : null);
+        CategoryDto dto = new CategoryDto(category);
         return dto;
     }
 

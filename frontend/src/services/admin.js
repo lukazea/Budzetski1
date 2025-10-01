@@ -53,3 +53,71 @@ export async function updateUserNote(noteId, note) {
 export async function deleteUserNote(noteId) {
   await http.delete(`/users/admin/notes/${noteId}`);
 }
+
+export async function getPredefinedCategoriesAdmin() {
+  const { data } = await http.get("/categories/admin/predefined");
+  return data ?? [];
+}
+
+export async function createPredefinedCategory({ name, type }) {
+  const payload = { name, type, predefined: true };
+  const { data } = await http.post("/categories/admin/predefined", payload, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return data;
+}
+
+export async function deleteCategoryById(categoryId) {
+  await http.delete(`/categories/${categoryId}`);
+}
+
+export async function activatePredefined(categoryId) {
+  const { data } = await http.patch(`/categories/admin/${categoryId}/activate`);
+  return data;
+}
+export async function deactivatePredefined(categoryId) {
+  const { data } = await http.patch(`/categories/admin/${categoryId}/deactivate`);
+  return data;
+}
+
+export async function getAllCurrencies() {
+  const { data } = await http.get("/currencies");
+  return data ?? [];
+}
+
+export async function getCurrency(currencyCode) {
+  const { data } = await http.get(`/currencies/${currencyCode}`);
+  return data;
+}
+
+export async function createCurrency({ currency, valueToEur }) {
+  const payload = { currency, valueToEur };
+  const { data } = await http.post("/currencies", payload, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return data;
+}
+
+export async function updateExchangeRate(currencyCode, newRate) {
+  const { data } = await http.put(
+    `/currencies/${currencyCode}`,
+    null,
+    { params: { newRate } }
+  );
+  return data;
+}
+
+export async function deleteCurrency(currencyId) {
+  await http.delete(`/currencies/${currencyId}`);
+}
+
+export async function updateRatesFromAPI() {
+  await http.post("/currencies/update-rates");
+}
+
+export async function convertBetweenCurrencies(amount, fromCode, toCode) {
+  const { data } = await http.get("/currencies/convert", {
+    params: { amount, fromCode, toCode }
+  });
+  return data;
+}

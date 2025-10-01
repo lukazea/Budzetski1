@@ -27,6 +27,9 @@ public class Category implements Serializable {
 
     @OneToMany(mappedBy = "category",  cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Transaction> transactions = new HashSet<>();
+    
+    @Column(name = "ACTIVE", nullable = false)
+    private boolean active = true;
 
     public Category() {}
 
@@ -34,8 +37,8 @@ public class Category implements Serializable {
         this.name = name;
         this.type = type;
         this.predefined = predefined;
-        this.user = user
-        ;
+        this.user = user;
+        this.active = true;
     }
 
     public Long getId() { return id; }
@@ -54,6 +57,9 @@ public class Category implements Serializable {
 
     public Set<Transaction> getTransactions() { return transactions; }
     public void setTransactions(Set<Transaction> transactions) { this.transactions = transactions; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
     @Override
     public String toString() {

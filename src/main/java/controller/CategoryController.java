@@ -55,6 +55,27 @@ public class CategoryController {
         }
     }
 
+    @PatchMapping("/admin/{categoryId}/activate")
+    public ResponseEntity<CategoryDto> activatePredefined(@PathVariable Long categoryId) {
+        try {
+            Category c = categoryService.activatePredefined(categoryId);
+            return ResponseEntity.ok(new CategoryDto(c));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // Deaktiviraj predefinisanu (ADMIN)
+    @PatchMapping("/admin/{categoryId}/deactivate")
+    public ResponseEntity<CategoryDto> deactivatePredefined(@PathVariable Long categoryId) {
+        try {
+            Category c = categoryService.deactivatePredefined(categoryId);
+            return ResponseEntity.ok(new CategoryDto(c));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // ==================== USER ENDPOINTS ====================
 
     // Kreiranje korisničke kategorije
@@ -135,12 +156,8 @@ public class CategoryController {
     // Brisanje kategorije
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long categoryId) {
-        try {
             categoryService.deleteCategory(categoryId);
             return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     // ==================== ADDITIONAL ENDPOINTS ====================
