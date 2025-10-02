@@ -110,7 +110,7 @@
               <button @click="selectForEdit(w)">
                 Uredi
               </button>
-              <button @click="openTransactions(w)">
+              <button @click="$router.push({ name: 'Transactions', params: { walletId: w.id } })">
                 Transakcije
               </button>
               <button title="Arhiviraj" @click="onArchive(w)">
@@ -211,7 +211,6 @@ import {
   deleteWallet,
   archiveWallet,
   activateWallet,
-  getWalletTransactions,
 } from "@/services/wallets";
 import {useAuth} from "@/composables/useAuth";
 
@@ -373,12 +372,6 @@ async function refreshTotals() {
   } finally {
     totalBalanceLoading.value = false;
   }
-}
-
-async function openTransactions(w) {
-  if (!w.id) return;
-  selectedWalletId.value = w.id;
-  transactions.value = await getWalletTransactions(w.id, userId.value);
 }
 
 function fmtMoney(n) {

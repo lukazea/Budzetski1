@@ -127,20 +127,20 @@ public class TransactionService {
         Wallet toWallet = walletRepository.findByIdAndUserId(dto.getToWalletId(), dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("Odredišni novčanik nije pronađen"));
 
-        if (fromWallet.getCurrentBalance().compareTo(dto.getFromAmount()) < 0) {
-            throw new RuntimeException("Nedovoljno sredstava u izvornom novčaniku");
-        }
-
+                
         BigDecimal toAmount;
         BigDecimal exchangeRate = BigDecimal.ONE;
-
+        
         if (!haveSameCurrency(fromWallet, toWallet)) {
             exchangeRate = calculateExchangeRate(fromWallet, toWallet);
             toAmount = dto.getFromAmount().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
         } else {
             toAmount = dto.getFromAmount();
         }
-
+                
+        if (fromWallet.getCurrentBalance().subtract(toAmount).signum() == -1) {
+            throw new RuntimeException("Nedovoljno sredstava u izvornom novčaniku");
+        }
         Transaction transaction = new Transaction();
         transaction.setName(dto.getName() != null ? dto.getName() :
                 "Transfer: " + fromWallet.getName() + " -> " + toWallet.getName());
@@ -148,14 +148,15 @@ public class TransactionService {
         transaction.setToWallet(toWallet);
         transaction.setFromAmount(dto.getFromAmount());
         transaction.setToAmount(toAmount);
+        transaction.setAmount(dto.getFromAmount());
         transaction.setExchangeRate(exchangeRate);
         transaction.setTransactionDate(dto.getTransactionDate());
         transaction.setUser(user);
         transaction.setTransfer(true);
         transaction.setType(CategoryType.TROSAK);
 
-        fromWallet.setCurrentBalance(fromWallet.getCurrentBalance().subtract(dto.getFromAmount()));
-        toWallet.setCurrentBalance(toWallet.getCurrentBalance().add(toAmount));
+        fromWallet.setCurrentBalance(fromWallet.getCurrentBalance().subtract(toAmount));
+        toWallet.setCurrentBalance(toWallet.getCurrentBalance().add(dto.getFromAmount()));
 
         walletRepository.save(fromWallet);
         walletRepository.save(toWallet);

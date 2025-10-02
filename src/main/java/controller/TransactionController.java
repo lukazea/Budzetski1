@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -133,12 +132,8 @@ public class TransactionController {
 
     @PostMapping("/transfer")
     public ResponseEntity<TransactionDto> createTransfer(@RequestBody TransactionDto transferDto) {
-        try {
-            TransactionDto created = transactionService.createTransfer(transferDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        TransactionDto created = transactionService.createTransfer(transferDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{transactionId}")

@@ -77,6 +77,11 @@ public class Wallet implements Serializable {
 	}
 
 	public void setCurrentBalance(BigDecimal currentBalance) {
+		if (currentBalance.signum() == -1){
+			var zeroDecimal = new BigDecimal(0);
+			this.currentBalance = zeroDecimal;
+			return;
+		}
 		this.currentBalance = currentBalance;
 	}
 

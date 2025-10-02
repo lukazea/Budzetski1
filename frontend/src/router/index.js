@@ -56,6 +56,12 @@ const routes = [
     meta: { requiresAdmin: true, requiresAuth: true },
   },
   {
+    path: "/wallets/:walletId/transactions",
+    name: "Transactions",
+    component: () => import("@/pages/TransactionsPage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: () => import("@/pages/NotFound.vue"),
