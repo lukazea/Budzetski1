@@ -31,6 +31,9 @@
       <router-link v-if="isAuthed && isAdmin" to="/admin-dashboard">
         Dashboard
       </router-link>
+      <router-link v-if="isAuthed" to="/settings">
+        Profil
+      </router-link>
       <button v-if="isAuthed" class="logout" @click="doLogout">
         Logout
       </button>
