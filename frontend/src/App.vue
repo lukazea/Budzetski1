@@ -13,6 +13,9 @@
       <router-link v-if="isAuthed && !isAdmin" to="/wallets">
         Wallets
       </router-link>
+      <router-link v-if="isAuthed && !isAdmin" to="/categories">
+        Kategorije
+      </router-link>
       <router-link v-if="isAuthed && isAdmin" to="/admin-users">
         Users
       </router-link>

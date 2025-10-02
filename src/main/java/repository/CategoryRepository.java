@@ -30,7 +30,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByType(CategoryType type);
     List<Category> findByTypeAndPredefinedTrue(CategoryType type);
 
-    @Query("SELECT c FROM Category c WHERE c.type = :type AND ((c.predefined = true AND c.active = true) OR c.user.id = :userId)")
+    @Query("SELECT c FROM Category c WHERE c.active AND c.type = :type AND ((c.predefined = true AND c.active = true) OR c.user.id = :userId)")
     List<Category> findByTypeAndAvailableForUser(@Param("type") CategoryType type, @Param("userId") Long userId);
 
     // --- Za admin - sve kategorije ---

@@ -109,7 +109,7 @@ public class CategoryService {
 
     // ==================== UPDATE AND DELETE ====================
 
-    public Category updateCategory(Long categoryId, String newName) {
+    public Category updateCategory(Long categoryId, String newName, Boolean active) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
 
@@ -118,6 +118,7 @@ public class CategoryService {
         }
 
         category.setName(newName);
+        category.setActive(active);
         return categoryRepository.save(category);
     }
 

@@ -62,6 +62,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/categories",
+    name: "UserCategories",
+    component: () => import("@/pages/CategoriesPage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: () => import("@/pages/NotFound.vue"),

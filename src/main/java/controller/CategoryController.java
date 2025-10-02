@@ -145,12 +145,9 @@ public class CategoryController {
     public ResponseEntity<CategoryDto> updateCategory(
             @PathVariable Long categoryId,
             @RequestBody CategoryDto categoryDto) {
-        try {
-            Category category = categoryService.updateCategory(categoryId, categoryDto.getName());
-            return ResponseEntity.ok(new CategoryDto(category));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        Category category = categoryService.updateCategory(categoryId, categoryDto.getName(), categoryDto.getActive());
+        return ResponseEntity.ok(new CategoryDto(category));
+
     }
 
     // Brisanje kategorije
