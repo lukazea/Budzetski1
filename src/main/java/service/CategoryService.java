@@ -1,18 +1,19 @@
 package service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import dto.CategoryDto;
 import entity.Category;
 import entity.CategoryType;
 import entity.User;
 import repository.CategoryRepository;
 import repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -121,12 +122,7 @@ public class CategoryService {
         category.setActive(active);
         return categoryRepository.save(category);
     }
-
-    public CategoryDto updateCategoryDto(Long categoryId, String newName) {
-        Category category = updateCategory(categoryId, newName);
-        return convertToDto(category);
-    }
-
+    
     public void deleteCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena!"));
