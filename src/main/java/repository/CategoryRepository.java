@@ -61,4 +61,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "AND LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Category> findAvailableForUserByNameContaining(@Param("userId") Long userId,
                                                         @Param("searchTerm") String searchTerm);
+
+    Optional<Category> findByPredefinedTrueAndNameIgnoreCase(String name);
+
+    long countByPredefinedTrue();
 }

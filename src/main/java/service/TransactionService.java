@@ -96,7 +96,7 @@ public class TransactionService {
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Kategorija nije pronađena"));
 
-        if (category.getUser() != null && !category.getUser().getId().equals(dto.getUserId())) {
+        if (!category.isPredefined() && category.getUser() != null && !category.getUser().getId().equals(dto.getUserId())) {
             throw new RuntimeException("Nemate pristup ovoj kategoriji");
         }
 

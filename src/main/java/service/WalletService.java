@@ -46,7 +46,8 @@ public class WalletService {
         Wallet wallet = new Wallet();
         wallet.setUser(user);
         wallet.setName(name);
-
+        wallet.setInitialBalance(new BigDecimal(0));
+        
         Set<Currency> currencySet = new HashSet<>();
         currencySet.add(currency);
         wallet.setCurrencies(currencySet);

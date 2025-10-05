@@ -1,8 +1,11 @@
 package entity.seeders;
 
+import entity.Category;
+import entity.CategoryType;
 import entity.Currency;
 import entity.User;
 import entity.User.Role;
+import repository.CategoryRepository;
 import repository.CurrencyRepository;
 import repository.UserRepository;
 
@@ -55,5 +58,25 @@ public class DataSeeder {
                 System.out.println("ℹ️ Currencies already seeded.");
             }
         };
+    }
+
+    @Bean
+    CommandLineRunner seedPredefinedCategories(CategoryRepository categoryRepository, UserRepository userRepository) {
+        return args -> {
+            User admin = userRepository.findByUserName("admin").orElse(null);
+            seedIfMissing(categoryRepository, "Plata",  CategoryType.PRIHOD, admin);
+            seedIfMissing(categoryRepository, "Trosak", CategoryType.TROSAK, admin);
+        };
+    }
+
+    private void seedIfMissing(CategoryRepository repo, String name, CategoryType type, User user) {
+        if (repo.findByPredefinedTrueAndNameIgnoreCase(name).isEmpty()) {
+            Category c = new Category(name, type, true, user);
+            c.setActive(true);
+            repo.save(c);
+            System.out.println("✅ Predefined category seeded: " + name + " (" + type + ")");
+        } else {
+            System.out.println("ℹ️ Predefined category already exists: " + name);
+        }
     }
 }

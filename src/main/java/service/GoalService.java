@@ -39,53 +39,43 @@ public class GoalService {
     @Autowired
     private WalletService walletService;
 
-    // Kreiranje novog cilja
     public Goal createGoal(Long userId, String name, BigDecimal targetAmount, LocalDate deadline, Long walletId) {
-        // Validacija korisnika
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen!"));
 
-        // Validacija datuma
         if (deadline.isBefore(LocalDate.now())) {
             throw new RuntimeException("Rok ne može biti u prošlosti!");
         }
 
-        // Validacija iznosa
         if (targetAmount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Ciljni iznos mora biti veći od nule!");
         }
 
         Wallet wallet;
 
-        // Ako je walletId null, kreira se novi štedni novčanik
         if (walletId == null) {
             if (name == null || name.trim().isEmpty()) {
                 throw new RuntimeException("Ime novog novčanika je obavezno!");
             }
 
-            // Pronađi default valutu (primer: RSD)
             Currency defaultCurrency = currencyRepository.findByCurrency("RSD")
                 .orElse(currencyRepository.findAll().get(0));
 
             wallet = walletService.createSavingsWallet(user, name.trim(), defaultCurrency);
         } else {
-            // Koristi postojeći novčanik
             wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new RuntimeException("Novčanik nije pronađen!"));
 
-            // Proveri da li novčanik pripada korisniku
             if (!wallet.getUser().getId().equals(userId)) {
                 throw new RuntimeException("Nemate dozvolu da koristite ovaj novčanik!");
             }
 
-            // Označi novčanik kao štedni ako već nije
             if (!wallet.isSavings()) {
                 wallet.setSavings(true);
                 walletRepository.save(wallet);
             }
         }
 
-        // Kreira cilj
         Goal goal = new Goal();
         goal.setName(name.trim());
         goal.setTargetAmount(targetAmount);
@@ -98,7 +88,6 @@ public class GoalService {
         return goalRepository.save(goal);
     }
 
-    // Računanje napretka
     public BigDecimal calculateProgress(Long goalId) {
         Goal goal = goalRepository.findById(goalId)
             .orElseThrow(() -> new RuntimeException("Cilj nije pronađen!"));
@@ -106,7 +95,6 @@ public class GoalService {
         BigDecimal currentAmount = goal.getWallet().getCurrentBalance();
         BigDecimal targetAmount = goal.getTargetAmount();
 
-        // Računanje procenta napretka
         BigDecimal progressPercentage = BigDecimal.ZERO;
         if (targetAmount.compareTo(BigDecimal.ZERO) > 0) {
             progressPercentage = currentAmount.divide(targetAmount, 4, RoundingMode.HALF_UP)
@@ -114,21 +102,16 @@ public class GoalService {
                 .setScale(2, RoundingMode.HALF_UP);
         }
 
-        // Ograniči na maksimum 100%
         if (progressPercentage.compareTo(new BigDecimal("100")) > 0) {
             progressPercentage = new BigDecimal("100.00");
         }
 
-        // Računanje dana do roka
-        long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), goal.getDeadline());
-
-        // Automatski update statusa ako je cilj završen
         if (currentAmount.compareTo(targetAmount) >= 0 && goal.getStatus() == GoalStatus.ACTIVE) {
             goal.setStatus(GoalStatus.COMPLETED);
             goalRepository.save(goal);
         }
 
-        return progressPercentage; // mora vratiti vrednost
+        return currentAmount;
     }
 
     // Dobijanje svih ciljeva korisnika
