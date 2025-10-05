@@ -1,6 +1,7 @@
 package controller;
 
 import dto.RecurringTransactionTemplateDto;
+import dto.TransactionDto;
 import entity.Transaction;
 import service.RecurringTransactionTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recurring-templates")
@@ -19,19 +21,12 @@ public class RecurringTransactionTemplateController {
     @Autowired
     private RecurringTransactionTemplateService recurringService;
 
-    /**
-     * Kreira novi template za ponavljajuće transakcije
-     * POST /api/recurring-templates
-     */
     @PostMapping
     public ResponseEntity<RecurringTransactionTemplateDto> createRecurringTemplate(
             @RequestBody RecurringTransactionTemplateDto dto) {
-        try {
-            RecurringTransactionTemplateDto created = recurringService.createRecurringTemplate(dto);
-            return new ResponseEntity<>(created, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+        RecurringTransactionTemplateDto created = recurringService.createRecurringTemplate(dto);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
+
     }
 
     /**
@@ -157,15 +152,12 @@ public class RecurringTransactionTemplateController {
      * GET /api/recurring-templates/{templateId}/user/{userId}/history
      */
     @GetMapping("/{templateId}/user/{userId}/history")
-    public ResponseEntity<List<Transaction>> getTransactionHistory(
+    public ResponseEntity<List<TransactionDto>> getTransactionHistory(
             @PathVariable Long templateId,
             @PathVariable Long userId) {
-        try {
-            List<Transaction> history = recurringService.getTransactionHistoryForTemplate(templateId, userId);
-            return new ResponseEntity<>(history, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+        List<TransactionDto> history = recurringService.getTransactionHistoryForTemplate(templateId, userId).stream().map(TransactionDto::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(history);
     }
 
     /**

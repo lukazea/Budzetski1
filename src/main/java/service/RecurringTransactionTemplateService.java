@@ -70,6 +70,8 @@ public class RecurringTransactionTemplateService {
         template.setUser(user);
         template.setFrequency(dto.getFrequency());
         template.setStartDate(dto.getStartDate());
+        template.setLastGenerated(dto.getStartDate());
+        template.setEndDate(dto.getEndDate());
         template.setActive(true);
 
         RecurringTransactionTemplate saved = recurringRepository.save(template);

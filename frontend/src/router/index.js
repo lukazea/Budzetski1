@@ -80,6 +80,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/recurring",
+    name: "Recurring",
+    component: () => import("@/pages/RecurringTemplatesPage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: () => import("@/pages/NotFound.vue"),

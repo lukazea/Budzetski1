@@ -19,6 +19,9 @@
       <router-link v-if="isAuthed && !isAdmin" to="/goals">
         Ciljevi
       </router-link>
+      <router-link v-if="isAuthed && !isAdmin" to="/recurring">
+        Ponavljanja
+      </router-link>
       <router-link v-if="isAuthed && isAdmin" to="/admin-users">
         Users
       </router-link>
